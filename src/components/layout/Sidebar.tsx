@@ -76,9 +76,9 @@ export const Sidebar = ({ title, subtitle, icon, items, onItemClick, onLogout, o
 
         <div className={`flex items-center transition-all duration-300 ${isCollapsed ? 'justify-center' : 'space-x-4'}`}>
           {/* Avatar/Icon */}
-          <div className={`bg-gradient-to-br from-indigo-500 to-purple-600 rounded-xl flex items-center justify-center shadow-lg transition-all duration-300 border-2 border-white/20 hover:border-white/40 hover:shadow-xl hover:shadow-indigo-500/25 ${
+          <div className={`rounded-xl flex items-center justify-center shadow-lg transition-all duration-300 border-2 border-white/20 hover:border-white/40 hover:shadow-xl hover:shadow-indigo-500/25 ${
             isCollapsed ? 'w-10 h-10' : 'w-16 h-16'
-          }`}>
+          }`} style={{ backgroundImage: 'linear-gradient(to bottom right, var(--primary-from), var(--primary-to))' }}>
             {isCollapsed ? (
               <span className="text-white font-bold text-xs">{initials.toUpperCase()}</span>
             ) : (
@@ -123,10 +123,11 @@ export const Sidebar = ({ title, subtitle, icon, items, onItemClick, onLogout, o
                   isCollapsed ? 'p-2 justify-center' : 'px-4 py-4 space-x-3'
                 } ${
                   item.isActive 
-                    ? 'bg-gradient-to-r from-indigo-600/80 to-purple-600/80 text-white shadow-lg backdrop-blur-sm border border-indigo-500/30 shadow-indigo-500/25' 
+                    ? 'text-white shadow-lg backdrop-blur-sm border border-indigo-500/30 shadow-indigo-500/25' 
                     : 'text-slate-300 hover:bg-slate-700/50 hover:text-white hover:shadow-md hover:border-slate-600/50 border border-transparent'
                 }`}
                 title={isCollapsed ? item.label : undefined}
+                style={item.isActive ? { backgroundImage: 'linear-gradient(to right, var(--primary-from), var(--primary-to))' } : undefined}
               >
                 <div className={`transition-all duration-200 ${item.isActive ? 'scale-110' : 'group-hover:scale-105'}`}>
                   {item.icon}
@@ -155,7 +156,7 @@ export const Sidebar = ({ title, subtitle, icon, items, onItemClick, onLogout, o
                 
                 {/* Barra lateral de activo */}
                 {item.isActive && (
-                  <div className="absolute left-0 top-0 bottom-0 w-1 bg-gradient-to-b from-indigo-400 to-purple-400 rounded-r-full"></div>
+                  <div className="absolute left-0 top-0 bottom-0 w-1 rounded-r-full" style={{ backgroundImage: 'linear-gradient(to bottom, var(--heading-from), var(--heading-to))' }}></div>
                 )}
               </button>
             </li>

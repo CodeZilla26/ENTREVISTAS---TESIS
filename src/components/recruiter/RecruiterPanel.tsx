@@ -153,14 +153,16 @@ export const RecruiterPanel = ({ activeTab, onShowToast }: RecruiterPanelProps) 
             <div className="relative flex items-center justify-between">
               <div className="flex items-center space-x-6">
                 {/* Icon with sidebar-style design */}
-                <div className="bg-gradient-to-br from-purple-500 to-indigo-600 w-16 h-16 rounded-xl flex items-center justify-center shadow-lg border-2 border-white/20 hover:border-white/40 transition-all duration-300 hover:shadow-xl hover:shadow-purple-500/25">
+                <div className="w-16 h-16 rounded-xl flex items-center justify-center shadow-lg border-2 border-white/20 hover:border-white/40 transition-all duration-300 hover:shadow-xl hover:shadow-purple-500/25" style={{ backgroundImage: 'linear-gradient(to bottom right, var(--primary-from), var(--primary-to))' }}>
                   <svg className="w-8 h-8 text-white" fill="currentColor" viewBox="0 0 20 20">
                     <path fillRule="evenodd" d="M4 4a2 2 0 012-2h8a2 2 0 012 2v12a2 2 0 01-2 2H6a2 2 0 01-2-2V4zm2 0v12h8V4H6z" clipRule="evenodd"/>
                   </svg>
                 </div>
                 
                 <div>
-                  <h2 className="text-3xl font-bold text-slate-100 mb-2">Gestión de Entrevistas</h2>
+                  <h2 className="text-3xl font-bold text-slate-100 mb-2" style={{ backgroundImage: 'linear-gradient(to right, var(--heading-from), var(--heading-to))' }}>
+                    Gestión de Entrevistas
+                  </h2>
                   <p className="text-slate-400 text-lg">Crea, edita y administra todas las entrevistas del sistema</p>
                 </div>
               </div>
@@ -168,7 +170,8 @@ export const RecruiterPanel = ({ activeTab, onShowToast }: RecruiterPanelProps) 
               {/* Action button with sidebar styling */}
               <button 
                 onClick={() => interviewsHook.setShowCreateInterviewModal(true)}
-                className="bg-gradient-to-r from-purple-500 to-indigo-600 hover:from-purple-600 hover:to-indigo-700 text-white px-6 py-3 rounded-xl font-semibold shadow-lg hover:shadow-xl transition-all duration-300 border border-white/20 hover:border-white/30"
+                className="text-white px-6 py-3 rounded-xl font-semibold shadow-lg hover:shadow-xl transition-all duration-300 border border-white/20 hover:border-white/30"
+                style={{ backgroundImage: 'linear-gradient(to right, var(--primary-from), var(--primary-to))' }}
               >
                 <div className="flex items-center space-x-2">
                   <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
@@ -193,16 +196,22 @@ export const RecruiterPanel = ({ activeTab, onShowToast }: RecruiterPanelProps) 
               {/* Stats Cards with real data */}
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
                 {[
-                  { title: 'Total Entrevistas', value: totalInterviews.toString(), icon: '📋', color: 'from-purple-500 to-purple-600', bg: 'bg-purple-500/10' },
-                  { title: 'Activas', value: activeInterviews.toString(), icon: '✅', color: 'from-green-500 to-green-600', bg: 'bg-green-500/10' },
-                  { title: 'Borradores', value: draftInterviews.toString(), icon: '📝', color: 'from-yellow-500 to-yellow-600', bg: 'bg-yellow-500/10' },
-                  { title: 'Inactivas', value: archivedInterviews.toString(), icon: '📦', color: 'from-slate-500 to-slate-600', bg: 'bg-slate-500/10' }
+                  { title: 'Total Entrevistas', value: totalInterviews.toString(), icon: '📋' },
+                  { title: 'Activas', value: activeInterviews.toString(), icon: '✅' },
+                  { title: 'Borradores', value: draftInterviews.toString(), icon: '📝' },
+                  { title: 'Inactivas', value: archivedInterviews.toString(), icon: '📦' }
                 ].map((stat, index) => (
                   <div key={index} className="bg-gradient-to-br from-slate-800/95 to-slate-900/95 backdrop-blur-xl border border-slate-600/30 rounded-2xl p-6 shadow-xl hover:shadow-2xl transition-all duration-300 relative overflow-hidden group">
-                    <div className={`absolute inset-0 ${stat.bg} opacity-0 group-hover:opacity-100 transition-opacity duration-300 pointer-events-none`}></div>
+                    <div
+                      className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-300 pointer-events-none"
+                      style={{ backgroundImage: 'linear-gradient(to right, var(--heading-from), var(--heading-to))' }}
+                    ></div>
                     <div className="relative">
                       <div className="flex items-center justify-between mb-4">
-                        <div className={`bg-gradient-to-r ${stat.color} w-12 h-12 rounded-xl flex items-center justify-center text-white text-xl shadow-lg`}>
+                        <div
+                          className="w-12 h-12 rounded-xl flex items-center justify-center text-white text-xl shadow-lg"
+                          style={{ backgroundImage: 'linear-gradient(to right, var(--primary-from), var(--primary-to))' }}
+                        >
                           {stat.icon}
                         </div>
                         <div className="text-right">
@@ -222,7 +231,7 @@ export const RecruiterPanel = ({ activeTab, onShowToast }: RecruiterPanelProps) 
                   
                   <div className="relative">
                     <h3 className="text-xl font-bold text-slate-100 mb-6 flex items-center">
-                      <div className="w-8 h-8 bg-gradient-to-r from-purple-500 to-indigo-600 rounded-lg flex items-center justify-center mr-3">
+                      <div className="w-8 h-8 rounded-lg flex items-center justify-center mr-3" style={{ backgroundImage: 'linear-gradient(to right, var(--primary-from), var(--primary-to))' }}>
                         📋
                       </div>
                       Lista de Entrevistas
@@ -236,11 +245,23 @@ export const RecruiterPanel = ({ activeTab, onShowToast }: RecruiterPanelProps) 
                               <h4 className="text-lg font-semibold text-slate-100 mb-2">{interview.title}</h4>
                               <p className="text-slate-400 text-sm mb-3 line-clamp-2">{interview.description}</p>
                             </div>
-                            <div className={`px-3 py-1 rounded-full text-xs font-medium ${
-                              interview.status === 'Activa' ? 'bg-green-500/20 text-green-400' :
-                              interview.status === 'Borrador' ? 'bg-yellow-500/20 text-yellow-400' :
-                              'bg-slate-500/20 text-slate-400'
-                            }`}>
+                            <div
+                              className="px-3 py-1 rounded-full text-xs font-medium"
+                              style={{
+                                backgroundColor:
+                                  interview.status === 'Activa'
+                                    ? 'var(--status-active-bg)'
+                                    : interview.status === 'Borrador'
+                                      ? 'var(--status-draft-bg)'
+                                      : 'var(--status-inactive-bg)',
+                                color:
+                                  interview.status === 'Activa'
+                                    ? 'var(--status-active-text)'
+                                    : interview.status === 'Borrador'
+                                      ? 'var(--status-draft-text)'
+                                      : 'var(--status-inactive-text)'
+                              }}
+                            >
                               {interview.status}
                             </div>
                           </div>
@@ -255,10 +276,24 @@ export const RecruiterPanel = ({ activeTab, onShowToast }: RecruiterPanelProps) 
                               onClick={() => interviewsHook.handleDeleteInterview(String(interview.id))}
                               disabled={interviewsHook.deletingId === String(interview.id)}
                               className={`w-full px-4 py-2 rounded-lg transition-all duration-300 ${
-                                interviewsHook.deletingId === String(interview.id)
-                                  ? 'bg-red-500/10 text-red-300 cursor-not-allowed'
-                                  : 'bg-red-500/20 hover:bg-red-500/30 text-red-400'
+                                interviewsHook.deletingId === String(interview.id) ? 'cursor-not-allowed' : ''
                               }`}
+                              style={{
+                                backgroundColor: interviewsHook.deletingId === String(interview.id)
+                                  ? 'var(--danger-disabled-bg)'
+                                  : 'var(--danger-bg)',
+                                color: interviewsHook.deletingId === String(interview.id)
+                                  ? 'var(--danger-disabled-text)'
+                                  : 'var(--danger-text)'
+                              }}
+                              onMouseEnter={(e) => {
+                                if (interviewsHook.deletingId === String(interview.id)) return;
+                                (e.currentTarget as HTMLButtonElement).style.backgroundColor = 'var(--danger-bg-hover)';
+                              }}
+                              onMouseLeave={(e) => {
+                                if (interviewsHook.deletingId === String(interview.id)) return;
+                                (e.currentTarget as HTMLButtonElement).style.backgroundColor = 'var(--danger-bg)';
+                              }}
                             >
                               {interviewsHook.deletingId === String(interview.id) ? 'Eliminando…' : '🗑️ Eliminar'}
                             </button>
@@ -287,7 +322,8 @@ export const RecruiterPanel = ({ activeTab, onShowToast }: RecruiterPanelProps) 
                     
                     <button 
                       onClick={() => interviewsHook.setShowCreateInterviewModal(true)}
-                      className="bg-gradient-to-r from-purple-500 to-indigo-600 hover:from-purple-600 hover:to-indigo-700 text-white px-8 py-4 rounded-xl font-semibold shadow-lg hover:shadow-xl transition-all duration-300 border border-white/20 hover:border-white/30"
+                      className="text-white px-8 py-4 rounded-xl font-semibold shadow-lg hover:shadow-xl transition-all duration-300 border border-white/20 hover:border-white/30"
+                      style={{ backgroundImage: 'linear-gradient(to right, var(--primary-from), var(--primary-to))' }}
                     >
                       Crear Primera Entrevista
                     </button>

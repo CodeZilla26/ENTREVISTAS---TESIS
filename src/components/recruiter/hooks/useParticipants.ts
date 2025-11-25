@@ -116,14 +116,14 @@ export const useParticipants = ({
     }
     try {
       if (!isAuthenticated) {
-        onShowToast('Inicia sesión para crear participantes (token no encontrado)', 'error');
+        onShowToast('Inicia sesión para crear participantes', 'error');
         return;
       }
       if (!PARTICIPANTS_CREATE_URL) {
         onShowToast('Configura PARTICIPANTS_CREATE_URL en src/config.ts para crear participantes', 'error');
         return;
       }
-      console.log('[Participantes] CREATE URL:', PARTICIPANTS_CREATE_URL, 'JWT presente:', isAuthenticated);
+      console.log('[Participantes] CREATE URL:', PARTICIPANTS_CREATE_URL, 'Auth activa:', isAuthenticated);
       const res = await getAuthFetch(PARTICIPANTS_CREATE_URL, {
         method: 'POST',
         body: JSON.stringify({
@@ -186,9 +186,9 @@ export const useParticipants = ({
       console.log('[Asignar Entrevista] ID del participante:', selectedParticipant.id);
       console.log('[Asignar Entrevista] Entrevista seleccionada:', selectedInterviewForAssignment);
       
-      // Verificar que el JWT esté disponible
+      // Verificar que la autenticación esté disponible
       const authHeader = getAuthHeader();
-      console.log('[Asignar Entrevista] JWT disponible:', !!authHeader.Authorization);
+      console.log('[Asignar Entrevista] Autenticación disponible:', !!authHeader.Authorization);
       
       // Usar POST con query parameters (no body JSON)
       const url = `${INTERVIEWS_API_BASE}/api/userinterview/assignInterviewToPracticante?userId=${selectedParticipant.id}&interviewId=${selectedInterviewForAssignment}`;

@@ -24,12 +24,28 @@ export const LoginForm = ({ onError }: LoginFormProps) => {
     // Reset errors
     setErrors({ email: false, password: false });
     
-    if (!email.trim() || !password.trim()) {
-      onError('Por favor, completa todos los campos');
+    // Validación: solo email (formato) y presencia de ambos campos
+    const emailTrim = email.trim();
+    const passwordTrim = password.trim();
+    const emailOk = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(emailTrim);
+    if (!emailTrim || !passwordTrim || !emailOk) {
+      if (!emailTrim || !passwordTrim) {
+        onError('Por favor, completa todos los campos');
+      } else if (!emailOk) {
+        onError('Correo electrónico inválido');
+      }
       setErrors({
-        email: !email.trim(),
-        password: !password.trim()
+        email: !emailTrim || !emailOk,
+        password: !passwordTrim
       });
+      // Enfocar primer campo con error
+      if (!emailTrim || !emailOk) {
+        const el = document.querySelector<HTMLInputElement>('input[type="email"]');
+        el?.focus();
+      } else {
+        const el = document.querySelector<HTMLInputElement>('input[type="password"]');
+        el?.focus();
+      }
       return;
     }
 
@@ -39,7 +55,7 @@ export const LoginForm = ({ onError }: LoginFormProps) => {
       const res = await fetch(AUTH_URL, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ email: email.trim(), password: password.trim() })
+        body: JSON.stringify({ email: emailTrim, password: passwordTrim })
       });
 
       const raw = await res.text();
@@ -47,39 +63,67 @@ export const LoginForm = ({ onError }: LoginFormProps) => {
       try { data = raw ? JSON.parse(raw) : null; } catch { data = raw; }
 
       if (!res.ok) {
-        const serverMsg = (typeof data === 'string') ? data : (data?.message || 'Credenciales incorrectas');
-        onError(serverMsg);
+        let msg = 'Error desconocido';
+        switch (res.status) {
+          case 400:
+          case 422:
+            msg = typeof data === 'string' ? data : (data?.message || 'Datos inválidos. Revisa los campos.');
+            break;
+          case 401:
+            msg = 'Correo o contraseña incorrectos.';
+            break;
+          case 403:
+            msg = 'No tienes permisos para acceder.';
+            break;
+          case 404:
+            msg = 'Servicio no disponible. Intenta más tarde.';
+            break;
+          case 429:
+            msg = 'Demasiados intentos. Espera un momento e inténtalo de nuevo.';
+            break;
+          default:
+            msg = typeof data === 'string' ? data : (data?.message || 'Problema del servidor. Intenta más tarde.');
+        }
+        onError(msg);
         setErrors({ email: true, password: true });
         return;
       }
 
-      // Expected 200: { jwt, email, role }
-      const jwt: string | undefined = data?.jwt;
+      // Expected 200: { email, role }
       const respEmail: string | undefined = data?.email;
       const role: string | undefined = data?.role;
-      if (!jwt || !respEmail) {
+      if (!respEmail) {
         onError('Respuesta de login inválida');
         return;
       }
-      // Persist via context
-      login({ email: respEmail, role, jwt });
+      // Persist via context (sin JWT)
+      login({ email: respEmail, role });
     } catch (err) {
       console.error('Login error:', err);
-      onError('No se pudo conectar con el servicio de autenticación');
+      onError('Sin conexión o tiempo de espera agotado. Intenta nuevamente.');
     } finally {
       setIsLoading(false);
     }
   };
 
   return (
-    <div className="w-full h-screen flex flex-col items-center justify-center text-center">
-      <div className="bg-slate-800/95 backdrop-blur-lg border border-slate-600/30 shadow-2xl p-8 md:p-12 rounded-2xl max-w-md w-full mx-4">
-        <h1 className="text-3xl md:text-4xl font-bold bg-gradient-to-r from-blue-400 to-purple-400 bg-clip-text text-transparent mb-2">
+    <div className="relative w-full h-screen flex flex-col items-center justify-center text-center overflow-hidden">
+      <div className="pointer-events-none absolute inset-0 -z-10">
+        <div className="absolute -top-24 -right-24 w-80 h-80 bg-indigo-600/20 blur-3xl rounded-full" />
+        <div className="absolute -bottom-24 -left-24 w-80 h-80 bg-purple-600/20 blur-3xl rounded-full" />
+      </div>
+      <div className="bg-gradient-to-br from-slate-800/95 to-slate-700/90 backdrop-blur-xl border border-slate-400/20 shadow-[0_10px_40px_-10px_rgba(0,0,0,0.6)] p-8 md:p-12 rounded-2xl max-w-md w-full mx-4">
+        <h1
+          className="text-3xl md:text-4xl font-bold bg-clip-text text-transparent mb-2"
+          style={{
+            backgroundImage: 'linear-gradient(to right, var(--heading-from), var(--heading-to))'
+          }}
+        >
           Bienvenido
         </h1>
         <p className="text-slate-300 mb-8">Accede a tu sistema de entrevistas</p>
         
-        <form onSubmit={handleSubmit} className="w-full space-y-4">
+        <form onSubmit={handleSubmit} className="w-full space-y-4" aria-busy={isLoading} aria-live="polite">
           <input
             type="email"
             value={email}
@@ -87,11 +131,16 @@ export const LoginForm = ({ onError }: LoginFormProps) => {
             className={`w-full px-4 py-3 rounded-xl border ${
               errors.email 
                 ? 'border-red-500 bg-red-50/10' 
-                : 'border-slate-500'
-            } bg-slate-700 text-slate-100 focus:outline-none focus:ring-2 focus:ring-blue-500 transition-colors`}
+                : 'border-slate-500/60'
+            } bg-slate-700/80 text-slate-100 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-indigo-500/70 focus:border-indigo-400/60 transition-colors`}
             placeholder="Correo electrónico"
+            autoComplete="email"
+            aria-invalid={errors.email}
             disabled={isLoading}
           />
+          {errors.email && (
+            <p className="text-left text-red-400 text-sm mt-1">Ingresa un correo válido.</p>
+          )}
           
           <input
             type="password"
@@ -100,18 +149,29 @@ export const LoginForm = ({ onError }: LoginFormProps) => {
             className={`w-full px-4 py-3 rounded-xl border ${
               errors.password 
                 ? 'border-red-500 bg-red-50/10' 
-                : 'border-slate-500'
-            } bg-slate-700 text-slate-100 focus:outline-none focus:ring-2 focus:ring-blue-500 transition-colors`}
+                : 'border-slate-500/60'
+            } bg-slate-700/80 text-slate-100 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-indigo-500/70 focus:border-indigo-400/60 transition-colors`}
             placeholder="Contraseña"
+            autoComplete="current-password"
+            aria-invalid={errors.password}
             disabled={isLoading}
           />
+          {errors.password && (
+            <p className="text-left text-red-400 text-sm mt-1">La contraseña es obligatoria.</p>
+          )}
           
           <button
             type="submit"
             disabled={isLoading}
-            className="w-full bg-gradient-to-r from-indigo-600 to-purple-600 text-white font-semibold py-3 px-4 rounded-xl hover:from-indigo-700 hover:to-purple-700 transition-all duration-300 shadow-lg disabled:opacity-50 disabled:cursor-not-allowed transform hover:scale-105"
+            className="w-full text-white font-semibold py-3 px-4 rounded-xl transition-all duration-300 shadow-lg disabled:opacity-50 disabled:cursor-not-allowed transform hover:scale-[1.02] active:scale-[0.99] flex items-center justify-center gap-2 focus:outline-none focus-visible:ring-2 focus-visible:ring-indigo-400/70 focus-visible:ring-offset-2 focus-visible:ring-offset-slate-800"
+            style={{
+              backgroundImage: 'linear-gradient(to right, var(--primary-from), var(--primary-to))'
+            }}
           >
-            {isLoading ? 'Iniciando...' : 'Iniciar Sesión'}
+            {isLoading && (
+              <span className="inline-block w-5 h-5 border-2 border-white/70 border-t-transparent rounded-full animate-spin" aria-hidden="true"></span>
+            )}
+            <span>{isLoading ? 'Iniciando...' : 'Iniciar Sesión'}</span>
           </button>
         </form>
       </div>

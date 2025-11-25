@@ -9,14 +9,16 @@ export const useToast = () => {
     type: ToastMessage['type'] = 'info', 
     duration: number = 3000
   ) => {
-    const id = Math.random().toString(36).substr(2, 9);
-    const newToast: ToastMessage = { id, message, type, duration };
-    
-    setToasts(prev => [...prev, newToast]);
-    
-    setTimeout(() => {
-      setToasts(prev => prev.filter(toast => toast.id !== id));
-    }, duration);
+    setToasts(prev => {
+      // Evitar duplicados exactos (mismo mensaje y tipo)
+      if (prev.some(t => t.message === message && t.type === type)) {
+        return prev;
+      }
+      const id = Math.random().toString(36).substr(2, 9);
+      const next = [...prev, { id, message, type, duration } as ToastMessage];
+      // Limitar a 4 toasts visibles
+      return next.slice(-4);
+    });
   }, []);
 
   const removeToast = useCallback((id: string) => {

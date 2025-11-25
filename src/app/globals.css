@@ -8,6 +8,34 @@
   --foreground-rgb: 241, 245, 249;
   --background-start-rgb: 30, 41, 59;
   --background-end-rgb: 71, 85, 105;
+  /* Theme variables derived from current modules (slate/indigo/purple) */
+  --bg-from: #0f172a; /* slate-900/800 */
+  --bg-mid: #334155;  /* slate-700 */
+  --bg-to: #475569;   /* slate-600 */
+  --primary-from: #4f46e5; /* indigo-600 */
+  --primary-to: #9333ea;   /* purple-600 */
+  --heading-from: #60a5fa; /* blue-400 */
+  --heading-to: #a78bfa;   /* purple-400 */
+  /* Toast variants */
+  --toast-success: #10b981; /* emerald-500 */
+  --toast-error: #f43f5e;   /* rose-500 */
+  --toast-warning: #f59e0b; /* amber-500 */
+  --toast-info: #0ea5e9;    /* sky-500 */
+
+  /* Status badges */
+  --status-active-bg: rgba(16, 185, 129, 0.20);  /* emerald-500 @20% */
+  --status-active-text: #34d399;                 /* emerald-400 */
+  --status-draft-bg: rgba(245, 158, 11, 0.20);   /* amber-500 @20% */
+  --status-draft-text: #fbbf24;                  /* amber-400 */
+  --status-inactive-bg: rgba(148, 163, 184, 0.20); /* slate-400 @20% */
+  --status-inactive-text: #cbd5e1;                 /* slate-300 */
+
+  /* Danger / destructive accents */
+  --danger-bg: rgba(244, 63, 94, 0.20);        /* rose-500 @20% */
+  --danger-bg-hover: rgba(244, 63, 94, 0.30);  /* rose-500 @30% */
+  --danger-text: #fb7185;                       /* rose-400 */
+  --danger-disabled-bg: rgba(244, 63, 94, 0.10); /* rose-500 @10% */
+  --danger-disabled-text: #fda4af;              /* rose-300 */
 }
 
 body {

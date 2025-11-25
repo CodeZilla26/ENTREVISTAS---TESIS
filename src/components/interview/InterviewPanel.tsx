@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useRef, useEffect } from 'react';
+import { createPortal } from 'react-dom';
 import { Play, Square, Volume2 } from 'lucide-react';
 import { useInterview } from '@/hooks/useInterview';
 import { useAuth } from '@/context/AuthContext';
@@ -208,7 +209,8 @@ export const InterviewPanel = ({ onShowToast, userId, interviewId }: InterviewPa
       const blob = new Blob(audioChunksRef.current, { type: 'audio/webm' });
       
       if (!blob || blob.size === 0) {
-        onShowToast(`No se capturó audio en la respuesta ${qIndex + 1}`, 'error');
+        // No notificar por toast para evitar ruido; solo registrar
+        console.warn(`[AUDIO DEBUG] No se capturó audio en la respuesta ${qIndex + 1}`);
         return;
       }
 
@@ -232,11 +234,9 @@ export const InterviewPanel = ({ onShowToast, userId, interviewId }: InterviewPa
       audioAnswersRef.current.push({ blob, index: qIndex, questionText });
       console.log(`[AUDIO DEBUG] ✅ Audio guardado en memoria. Total respuestas:`, audioAnswersRef.current.length);
       console.log(`[AUDIO DEBUG] ✅ Sin guardado en IndexedDB - solo para envío a API`);
-      onShowToast(`Audio respuesta ${qIndex + 1} listo`, 'success');
 
     } catch (e) {
       console.error(`[AUDIO DEBUG] ❌ Error guardando respuesta:`, e);
-      onShowToast('No se pudo guardar el audio de la respuesta', 'error');
     } finally {
       // Limpiar referencias
       mediaRecorderRef.current = null;
@@ -354,7 +354,6 @@ export const InterviewPanel = ({ onShowToast, userId, interviewId }: InterviewPa
     } else {
       console.log(`[INTERVIEW DEBUG] ➡️ Avanzando a siguiente pregunta`);
       nextQuestion();
-      onShowToast(`Pregunta ${currentQuestionIndex + 2} de ${questions.length}`, 'info');
       
       // Reproducir siguiente pregunta
       setTimeout(() => {
@@ -439,11 +438,7 @@ export const InterviewPanel = ({ onShowToast, userId, interviewId }: InterviewPa
       allResourcesStopped: true
     });
 
-    // 2. MARCAR COMO COMPLETADA INMEDIATAMENTE (MOSTRAR PANEL DE FINALIZACIÓN)
-    markAsCompleted();
-    console.log(`[FINISH DEBUG] 🎉 Panel de finalización mostrado - iniciando envío en segundo plano`);
-
-    // 3. CONFIGURAR ESTADOS PARA EL ENVÍO
+    // 2. CONFIGURAR ESTADOS PARA EL ENVÍO (no mostrar panel de finalización todavía)
     setIsFinishing(true);
     setIsSubmitting(true);
 
@@ -481,7 +476,8 @@ export const InterviewPanel = ({ onShowToast, userId, interviewId }: InterviewPa
 
       // Usar la función del hook que ya tiene la lógica correcta con IDs
       await finishInterview(audioFiles, videoBlob || undefined);
-      
+      // Marcar como completada solo tras éxito de API
+      markAsCompleted();
       onShowToast('¡Entrevista finalizada y enviada!', 'success');
       console.log(`[FINISH DEBUG] ✅ Entrevista enviada usando hook con IDs de preguntas`);
       
@@ -610,6 +606,33 @@ export const InterviewPanel = ({ onShowToast, userId, interviewId }: InterviewPa
   }, [stream, isRecording, startAudioRecording, startVideoRecording]);
 
   // Resto del componente UI...
+
+  // Loader global mientras se envía la entrevista (bloquea interacción)
+  const submittingOverlay = isSubmitting ? createPortal(
+    <div className="fixed inset-0 z-[60] bg-black/50 backdrop-blur-sm flex items-center justify-center">
+      <div className="bg-slate-800/90 border border-slate-600/40 rounded-2xl p-6 shadow-2xl w-[90%] max-w-sm flex items-center gap-3">
+        <span className="inline-block w-6 h-6 border-2 border-white/70 border-t-transparent rounded-full animate-spin" aria-hidden="true"></span>
+        <span className="text-slate-100 font-medium">Enviando entrevista...</span>
+      </div>
+    </div>,
+    document.body
+  ) : null;
+
+  // HUD de progreso de preguntas (no bloqueante)
+  const totalQuestions = Array.isArray(questions) ? questions.length : 0;
+  const currentNumber = Math.min(totalQuestions, (currentQuestionIndex ?? 0) + 1);
+  const questionProgress = totalQuestions > 0 ? Math.round((currentNumber / totalQuestions) * 100) : 0;
+  const questionProgressHUD = (!isSubmitting && !isCompleted && totalQuestions > 0) ? createPortal(
+    <div className="fixed top-4 left-1/2 -translate-x-1/2 z-40">
+      <div className="bg-slate-800/90 border border-slate-600/40 rounded-full px-4 py-2 shadow-xl backdrop-blur-md">
+        <div className="text-slate-200 text-sm mb-1 text-center">Pregunta {currentNumber} de {totalQuestions}</div>
+        <div className="w-64 bg-slate-600/40 rounded-full h-1 overflow-hidden">
+          <div className="h-1 bg-gradient-to-r from-indigo-500 to-purple-500" style={{ width: `${questionProgress}%` }} />
+        </div>
+      </div>
+    </div>,
+    document.body
+  ) : null;
   
   // Pantalla especial cuando la entrevista ya fue completada anteriormente
   if (questionsError === 'INTERVIEW_ALREADY_COMPLETED') {

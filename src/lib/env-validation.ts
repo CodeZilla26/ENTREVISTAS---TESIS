@@ -9,9 +9,6 @@ interface EnvironmentConfig {
   API_TIMEOUT: number;
   APP_URL: string;
   
-  // Authentication
-  INTERVIEWS_JWT: string;
-  
   // OpenRouter AI
   OPENROUTER_BASE_URL: string;
   OPENROUTER_API_KEY: string;
@@ -36,7 +33,6 @@ export function validateEnvironment(): ValidationResult {
   // Required variables
   const requiredVars = [
     'NEXT_PUBLIC_API_BASE_URL',
-    'INTERVIEWS_JWT',
     'OPENROUTER_API_KEY'
   ];
   
@@ -63,11 +59,6 @@ export function validateEnvironment(): ValidationResult {
     }
   });
   
-  // Validate JWT format
-  if (process.env.INTERVIEWS_JWT && !isValidJWT(process.env.INTERVIEWS_JWT)) {
-    errors.push('INTERVIEWS_JWT appears to be invalid (not a valid JWT format)');
-  }
-  
   // Validate URLs
   if (process.env.NEXT_PUBLIC_API_BASE_URL && !isValidURL(process.env.NEXT_PUBLIC_API_BASE_URL)) {
     errors.push('NEXT_PUBLIC_API_BASE_URL is not a valid URL');
@@ -88,7 +79,6 @@ export function validateEnvironment(): ValidationResult {
     API_BASE_URL: process.env.NEXT_PUBLIC_API_BASE_URL || '[NOT SET]',
     API_TIMEOUT: parseInt(process.env.NEXT_PUBLIC_API_TIMEOUT || '120000'),
     APP_URL: process.env.NEXT_PUBLIC_APP_URL || '[NOT SET]',
-    INTERVIEWS_JWT: process.env.INTERVIEWS_JWT || '[NOT SET]',
     OPENROUTER_BASE_URL: process.env.OPENROUTER_BASE_URL || '[NOT SET]',
     OPENROUTER_API_KEY: process.env.OPENROUTER_API_KEY || '[NOT SET]',
     OPENROUTER_REFERER: process.env.NEXT_PUBLIC_OPENROUTER_REFERER || '[NOT SET]',
@@ -153,7 +143,6 @@ export function logValidationResults(result: ValidationResult): void {
   console.log(`  • API Base URL: ${result.config.API_BASE_URL}`);
   console.log(`  • API Timeout: ${result.config.API_TIMEOUT}ms`);
   console.log(`  • App URL: ${result.config.APP_URL}`);
-  console.log(`  • JWT Token: ${result.config.INTERVIEWS_JWT ? '✅ Set' : '❌ Missing'}`);
   console.log(`  • OpenRouter API Key: ${result.config.OPENROUTER_API_KEY ? '✅ Set' : '❌ Missing'}`);
   console.log(`  • OpenRouter Base URL: ${result.config.OPENROUTER_BASE_URL}`);
   

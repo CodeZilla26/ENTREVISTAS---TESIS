@@ -108,11 +108,14 @@ export const ParticipantInterviewStatus = ({ onShowToast }: ParticipantDashboard
               <div className="flex flex-col md:flex-row md:items-center justify-between">
                 <div className="mb-4 md:mb-0">
                   <div className="flex items-center space-x-3">
-                    <div className="p-2 bg-gradient-to-br from-indigo-500 to-purple-600 rounded-lg shadow-lg">
+                    <div className="p-2 rounded-lg shadow-lg" style={{ backgroundImage: 'linear-gradient(to bottom right, var(--primary-from), var(--primary-to))' }}>
                       <BarChart3 className="w-6 h-6 text-white" />
                     </div>
                     <div>
-                      <h1 className="text-2xl md:text-3xl font-bold text-slate-100 bg-gradient-to-r from-indigo-300 to-purple-300 bg-clip-text text-transparent">
+                      <h1
+                        className="text-2xl md:text-3xl font-bold bg-clip-text text-transparent"
+                        style={{ backgroundImage: 'linear-gradient(to right, var(--heading-from), var(--heading-to))' }}
+                      >
                         Dashboard de Calificaciones
                       </h1>
                       <p className="text-slate-400 text-sm mt-1">Análisis detallado de tu rendimiento en la entrevista</p>
@@ -128,7 +131,8 @@ export const ParticipantInterviewStatus = ({ onShowToast }: ParticipantDashboard
                   
                   <button 
                     onClick={handleLoadResultsWithToast}
-                    className="bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-700 hover:to-purple-700 text-white font-medium py-2 px-4 rounded-xl transition-all duration-300 flex items-center justify-center space-x-2"
+                    className="text-white font-medium py-2 px-4 rounded-xl transition-all duration-300 flex items-center justify-center space-x-2"
+                    style={{ backgroundImage: 'linear-gradient(to right, var(--primary-from), var(--primary-to))' }}
                   >
                     <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
@@ -140,7 +144,7 @@ export const ParticipantInterviewStatus = ({ onShowToast }: ParticipantDashboard
               
               {/* Indicadores rápidos */}
               <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mt-6">
-                <div className="bg-slate-800/50 p-4 rounded-lg border border-slat};pe-700/50">
+                <div className="bg-slate-800/50 p-4 rounded-lg border border-slate-700/50">
                   <div className="flex items-center justify-between">
                     <div>
                       <p className="text-slate-400 text-sm">Puntuación Total</p>

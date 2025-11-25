@@ -2,18 +2,16 @@
 
 import { createContext, useContext, useEffect, useMemo, useState } from 'react';
 import { User, UserApiResponse, ApiErrorResponse } from '@/types';
-import { clearSession, getSavedUser, getToken, isAuthenticated as authIsAuthenticated, setSession } from '@/lib/auth';
+import { clearSession, getSavedUser, isAuthenticated as authIsAuthenticated, setSession } from '@/lib/auth';
 import { buildApiUrl, handleApiError, fetchWithTimeout, isNetworkError, sleep } from '@/lib/api';
 
 interface LoginArgs {
   email: string;
   role?: string;
-  jwt: string;
 }
 
 interface AuthContextValue {
   user: User | null;
-  token: string | null;
   isAuthenticated: boolean;
   isInitializing: boolean;
   isLoadingUserData: boolean;
@@ -30,53 +28,22 @@ const AuthContext = createContext<AuthContextValue | undefined>(undefined);
 
 export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [user, setUser] = useState<User | null>(null);
-  const [token, setToken] = useState<string | null>(null);
   const [isInitializing, setIsInitializing] = useState(true);
   const [isLoadingUserData, setIsLoadingUserData] = useState<boolean>(false);
 
   // Función para obtener datos del usuario desde la API
-  const fetchUserData = async (email: string, userToken: string): Promise<User | null> => {
+  const fetchUserData = async (email: string): Promise<User | null> => {
     try {
       setIsLoadingUserData(true);
       console.log('[AuthContext] Obteniendo datos del usuario para:', email);
-      console.log('[AuthContext] Token disponible:', !!userToken);
       
       // Usar localhost en lugar de la URL remota para findByEmail
       const url = `${process.env.NEXT_PUBLIC_API_BASE_URL}/api/user/findByEmail?email=${encodeURIComponent(email)}`;
-      
-      console.log('[AuthContext] 🔍 DEBUG - Token preview:', userToken ? userToken.substring(0, 20) + '...' : 'NO_TOKEN');
-      
-      // Intentar primero sin Bearer
-      let headers = {
-        'Authorization': userToken
-      };
-      
-      console.log('[AuthContext] 🔄 Intentando con JWT sin Bearer...');
       console.log('[AuthContext] URL:', url);
-      
-      let response = await fetchWithTimeout(url, {
-        method: 'GET',
-        headers
+
+      const response = await fetchWithTimeout(url, {
+        method: 'GET'
       }, 10000);
-      
-      // Si falla, intentar con Bearer
-      if (!response.ok && response.status === 401) {
-        console.log('[AuthContext] ⚠️ JWT sin Bearer falló (401), intentando con Bearer...');
-        headers = {
-          'Authorization': `Bearer ${userToken}`
-        };
-        
-        response = await fetchWithTimeout(url, {
-          method: 'GET',
-          headers
-        }, 10000);
-        
-        if (response.ok) {
-          console.log('[AuthContext] ✅ JWT con Bearer funcionó - el backend requiere Bearer');
-        }
-      } else if (response.ok) {
-        console.log('[AuthContext] ✅ JWT sin Bearer funcionó correctamente');
-      }
 
       if (response.ok) {
         const userData: UserApiResponse = await response.json();
@@ -100,7 +67,6 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
           url: url,
           email: email
         });
-        console.error('[AuthContext] 🔍 DEBUG - Posible problema con JWT sin Bearer o endpoint no disponible');
         
         const errorData: ApiErrorResponse = await response.json().catch(() => ({
           code: 'UNKNOWN_ERROR',
@@ -146,14 +112,12 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   useEffect(() => {
     const initializeAuth = async () => {
       console.log('[AuthContext] 🔄 Inicializando autenticación...');
-      const t = getToken();
       const saved = getSavedUser();
-      setToken(t);
       
-      if (t && saved) {
-        console.log('[AuthContext] ✅ Token y usuario guardado encontrados');
+      if (saved) {
+        console.log('[AuthContext] ✅ Usuario guardado encontrado');
         // Obtener datos completos del usuario desde la API
-        const userData = await fetchUserData(saved.email, t);
+        const userData = await fetchUserData(saved.email);
         if (userData) {
           setUser(userData);
           console.log('[AuthContext] ✅ Usuario cargado desde API:', userData.email);
@@ -169,7 +133,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
           console.log('[AuthContext] ⚠️ Usuario cargado con fallback:', u.email);
         }
       } else {
-        console.log('[AuthContext] ❌ No hay token o usuario guardado');
+        console.log('[AuthContext] ❌ No hay usuario guardado');
         setUser(null);
       }
       
@@ -183,12 +147,10 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   // Keep token in sync when storage changes (other tabs)
   useEffect(() => {
     const handler = () => {
-      const t = getToken();
       const saved = getSavedUser();
-      setToken(t);
-      if (t && saved) {
+      if (saved) {
         // Obtener datos completos del usuario desde la API
-        fetchUserData(saved.email, t).then((userData) => {
+        fetchUserData(saved.email).then((userData) => {
           if (userData) {
             setUser(userData);
           } else {
@@ -211,11 +173,10 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   }, []);
 
   const login = (args: LoginArgs) => {
-    setSession(args.jwt, { email: args.email, role: args.role });
-    setToken(args.jwt);
+    setSession({ email: args.email, role: args.role });
     
     // Obtener datos completos del usuario desde la API
-    fetchUserData(args.email, args.jwt).then((userData) => {
+    fetchUserData(args.email).then((userData) => {
       if (userData) {
         setUser(userData);
       } else {
@@ -234,12 +195,10 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const logout = () => {
     clearSession();
     setUser(null);
-    setToken('');
   };
 
   const value = useMemo<AuthContextValue>(() => ({
     user,
-    token,
     isAuthenticated: authIsAuthenticated(),
     isInitializing,
     isLoadingUserData,
@@ -251,7 +210,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       const saved = getSavedUser();
       return !!(saved?.role && saved.role.toLowerCase() === role.toLowerCase());
     },
-    getAuthHeader: () => (token ? { Authorization: token } : ({} as Record<string, string>)),
+    getAuthHeader: () => ({} as Record<string, string>),
     getAuthFetch: async (pathOrUrl: string, init?: RequestInit) => {
       const url = pathOrUrl.startsWith('http') ? pathOrUrl : buildApiUrl(pathOrUrl);
       const method = (init?.method || 'GET').toUpperCase();
@@ -278,8 +237,6 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
             headers: {
               // Do not set Content-Type for FormData; browser will set proper boundaries
               ...(isFormData ? {} : { 'Content-Type': 'application/json' }),
-              // Default auth header (can be overridden by init.headers.Authorization)
-              ...(token ? { Authorization: token } : {}),
               ...(init?.headers || {}),
             },
           }, defaultTimeout);
@@ -306,7 +263,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       }
       throw lastError || new Error('Error de red');
     },
-  }), [user, token, isInitializing, isLoadingUserData]);
+  }), [user, isInitializing, isLoadingUserData]);
 
   return (
     <AuthContext.Provider value={value}>{children}</AuthContext.Provider>
