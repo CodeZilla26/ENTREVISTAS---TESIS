@@ -134,7 +134,7 @@ export default function Home() {
       <div className="min-h-screen bg-gradient-to-br from-slate-800 via-slate-700 to-slate-600">
         <Sidebar
           title="Panel Reclutador"
-          subtitle="Reclutador"
+          subtitle=""
           icon={<Eye className="w-8 h-8 text-white" />}
           items={sidebarItems}
           onItemClick={setActiveTab}

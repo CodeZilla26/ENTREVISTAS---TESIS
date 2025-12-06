@@ -11,7 +11,7 @@ export interface Participant {
   id: string; // Cambiado de number a string para MongoDB IDs
   name: string;
   email: string;
-  status: 'Entrevista Completa' | 'Pendiente' | 'En Proceso';
+  status: 'Completado' | 'Pendiente' | 'En Proceso';
   dateRegistered?: string;
   assignedInterviews?: AssignedInterview[];
 }

@@ -3,8 +3,8 @@ import React from 'react';
 interface ParticipantsFiltersProps {
   searchTerm: string;
   setSearchTerm: (term: string) => void;
-  statusFilter: 'all' | 'Pendiente' | 'En Proceso' | 'Entrevista Completa';
-  setStatusFilter: (filter: 'all' | 'Pendiente' | 'En Proceso' | 'Entrevista Completa') => void;
+  statusFilter: 'all' | 'Pendiente' | 'En Proceso' | 'Completado';
+  setStatusFilter: (filter: 'all' | 'Pendiente' | 'En Proceso' | 'Completado') => void;
   sortBy: 'name' | 'date' | 'status';
   setSortBy: (sort: 'name' | 'date' | 'status') => void;
   viewMode: 'grid' | 'table';
@@ -74,7 +74,7 @@ export const ParticipantsFilters: React.FC<ParticipantsFiltersProps> = ({
           <option value="all">Todos los estados</option>
           <option value="Pendiente">Pendiente</option>
           <option value="En Proceso">En Proceso</option>
-          <option value="Entrevista Completa">Completada</option>
+          <option value="Completado">Completada</option>
         </select>
 
         {/* Sort By */}

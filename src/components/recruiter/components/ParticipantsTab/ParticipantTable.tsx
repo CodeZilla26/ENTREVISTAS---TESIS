@@ -14,7 +14,7 @@ export const ParticipantTable: React.FC<ParticipantTableProps> = ({
   console.log('[ParticipantTable] Estados de participantes:', participants.map(p => ({ name: p.name, status: p.status })));
   const getStatusColor = (status: string) => {
     switch (status) {
-      case 'Entrevista Completa':
+      case 'Completado':
         return 'bg-green-500/20 text-green-300 border border-green-500/30';
       case 'En Proceso':
         return 'bg-blue-500/20 text-blue-300 border border-blue-500/30';
@@ -25,7 +25,7 @@ export const ParticipantTable: React.FC<ParticipantTableProps> = ({
 
   const getStatusDotColor = (status: string) => {
     switch (status) {
-      case 'Entrevista Completa':
+      case 'Completado':
         return 'bg-green-400';
       case 'En Proceso':
         return 'bg-blue-400';
@@ -42,7 +42,6 @@ export const ParticipantTable: React.FC<ParticipantTableProps> = ({
             <th className="text-left py-4 px-2 text-slate-300 font-semibold">Participante</th>
             <th className="text-left py-4 px-2 text-slate-300 font-semibold">Email</th>
             <th className="text-left py-4 px-2 text-slate-300 font-semibold">Estado</th>
-            <th className="text-left py-4 px-2 text-slate-300 font-semibold">Fecha</th>
             <th className="text-left py-4 px-2 text-slate-300 font-semibold">Entrevistas</th>
             <th className="text-left py-4 px-2 text-slate-300 font-semibold">Acciones</th>
           </tr>
@@ -66,9 +65,6 @@ export const ParticipantTable: React.FC<ParticipantTableProps> = ({
                 <span className={`px-3 py-1 rounded-full text-xs font-medium ${getStatusColor(participant.status)}`}>
                   {participant.status}
                 </span>
-              </td>
-              <td className="py-4 px-2 text-slate-400 text-sm">
-                {participant.dateRegistered || 'N/A'}
               </td>
               <td className="py-4 px-2">
                 {participant.assignedInterviews && participant.assignedInterviews.length > 0 ? (
@@ -98,7 +94,7 @@ export const ParticipantTable: React.FC<ParticipantTableProps> = ({
                   </button>
                 ) : participant.status === 'En Proceso' ? (
                   <span className="text-slate-500 text-xs">Asignado</span>
-                ) : participant.status === 'Entrevista Completa' ? (
+                ) : participant.status === 'Completado' ? (
                   <span className="text-slate-500 text-xs">Completado</span>
                 ) : (
                   <span className="text-slate-500 text-xs">-</span>

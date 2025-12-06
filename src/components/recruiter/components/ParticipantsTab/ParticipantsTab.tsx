@@ -19,8 +19,8 @@ interface ParticipantsTabProps {
   // Filters
   searchTerm: string;
   setSearchTerm: (term: string) => void;
-  statusFilter: 'all' | 'Pendiente' | 'En Proceso' | 'Entrevista Completa';
-  setStatusFilter: (filter: 'all' | 'Pendiente' | 'En Proceso' | 'Entrevista Completa') => void;
+  statusFilter: 'all' | 'Pendiente' | 'En Proceso' | 'Completado';
+  setStatusFilter: (filter: 'all' | 'Pendiente' | 'En Proceso' | 'Completado') => void;
   sortBy: 'name' | 'date' | 'status';
   setSortBy: (sort: 'name' | 'date' | 'status') => void;
   viewMode: 'grid' | 'table';
@@ -148,7 +148,7 @@ export const ParticipantsTab: React.FC<ParticipantsTabProps> = ({
           
           <StatCard
             title="Completadas"
-            value={participants.filter(p => p.status === 'Entrevista Completa').length}
+            value={participants.filter(p => p.status === 'Completado').length}
             subtitle="Proceso finalizado"
             icon={CheckCircle}
             color="green"

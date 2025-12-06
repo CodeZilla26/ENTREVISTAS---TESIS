@@ -660,31 +660,11 @@ export const InterviewPanel = ({ onShowToast, userId, interviewId }: InterviewPa
               Tu entrevista ha sido procesada exitosamente. Si necesitas más información, contacta al reclutador.
             </p>
           </div>
-          
-          <div className="flex flex-col sm:flex-row gap-4 justify-center">
-            <button
-              onClick={() => loadQuestionsFromAPI()}
-              className="bg-red-600 hover:bg-red-700 text-white font-semibold py-3 px-8 rounded-xl transition-colors"
-            >
-              Verificar Nuevamente
-            </button>
-            
-            {/* Botón para testing - permitir nueva entrevista */}
-            <button
-              onClick={() => {
-                resetInterviewState();
-                onShowToast('Estado reseteado. Puedes hacer una nueva entrevista de prueba.', 'info');
-              }}
-              className="bg-blue-600 hover:bg-blue-700 text-white font-semibold py-3 px-8 rounded-xl transition-colors"
-            >
-              Nueva Entrevista (Testing)
-            </button>
-          </div>
         </div>
       </div>
     );
   }
-  
+
   if (isCompleted) {
     return (
       <div className="w-full h-full flex flex-col items-center justify-center text-center">

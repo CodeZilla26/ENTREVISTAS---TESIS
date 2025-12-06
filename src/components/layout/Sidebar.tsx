@@ -32,12 +32,14 @@ export const Sidebar = ({ title, subtitle, icon, items, onItemClick, onLogout, o
     onCollapseChange?.(newCollapsedState);
   };
 
-  const displayName = userName && userLastName 
-    ? `${userName} ${userLastName}` 
-    : userName 
-    ? userName 
-    : userEmail 
-    ? userEmail.split('@')[0] 
+  const displayName = userName && userLastName
+    ? (userName.trim().toLowerCase() === userLastName.trim().toLowerCase()
+        ? userName
+        : `${userName} ${userLastName}`)
+    : userName
+    ? userName
+    : userEmail
+    ? userEmail.split('@')[0]
     : title;
 
   const initials = userName && userLastName 
