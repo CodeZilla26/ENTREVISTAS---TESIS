@@ -45,6 +45,20 @@ export const RecruiterPanel = ({ activeTab, onShowToast }: RecruiterPanelProps) 
 
   const [selectedInterview, setSelectedInterview] = React.useState<CompletedInterview | null>(null);
 
+  const parseResponseText = (raw: string): { text: string; seconds?: number } => {
+    try {
+      const data = JSON.parse(raw);
+      if (data && typeof data === 'object' && 'text' in data) {
+        const anyData = data as any;
+        const seconds = typeof anyData.usage?.seconds === 'number' ? anyData.usage.seconds : undefined;
+        return { text: String(anyData.text ?? ''), seconds };
+      }
+    } catch {
+      // ignorar, devolvemos el texto tal cual
+    }
+    return { text: raw, seconds: undefined };
+  };
+
   // Hook principal para gestión de datos
   const recruiterData = useRecruiterData({ activeTab, onShowToast });
   
@@ -532,26 +546,29 @@ export const RecruiterPanel = ({ activeTab, onShowToast }: RecruiterPanelProps) 
                     Respuestas por pregunta
                   </h4>
                   <div className="space-y-3">
-                    {selectedInterview.answers.map((answer, index) => (
-                      <div key={index} className="bg-slate-800/70 border border-slate-700 rounded-lg p-3 text-xs">
-                        <div className="flex items-start justify-between gap-2 mb-2">
-                          <p className="text-slate-200 font-medium">
-                            {index + 1}. {answer.questionText}
+                    {selectedInterview.answers.map((answer, index) => {
+                      const parsed = parseResponseText(answer.responseText);
+                      return (
+                        <div key={index} className="bg-slate-800/70 border border-slate-700 rounded-lg p-3 text-xs">
+                          <div className="flex items-start justify-between gap-2 mb-2">
+                            <p className="text-slate-200 font-medium">
+                              {index + 1}. {answer.questionText}
+                            </p>
+                            <span className="text-[11px] px-2 py-0.5 rounded-full bg-slate-700 text-slate-200">
+                              {answer.points} pts
+                            </span>
+                          </div>
+                          <p className="text-xs text-purple-200 whitespace-pre-wrap break-words">
+                            {parsed.text || 'Sin respuesta registrada.'}
                           </p>
-                          <span className="text-[11px] px-2 py-0.5 rounded-full bg-slate-700 text-slate-200">
-                            {answer.points} pts
-                          </span>
+                          {answer.description && (
+                            <p className="mt-2 text-[11px] text-slate-400">
+                              {answer.description}
+                            </p>
+                          )}
                         </div>
-                        <p className="text-slate-300 text-xs whitespace-pre-wrap break-words">
-                          {answer.responseText || 'Sin respuesta registrada.'}
-                        </p>
-                        {answer.description && (
-                          <p className="mt-2 text-[11px] text-slate-400">
-                            {answer.description}
-                          </p>
-                        )}
-                      </div>
-                    ))}
+                      );
+                    })}
                   </div>
                 </div>
               </div>

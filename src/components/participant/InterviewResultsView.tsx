@@ -237,7 +237,9 @@ export const InterviewResultsView = ({
               </div>
             ) : (
               interviewResult.answers.map((answer, index) => {
-              const percentage = (answer.points / 100) * 100;
+              const MAX_POINTS_PER_QUESTION = 10;
+              const normalizedPoints = Math.max(0, Math.min(answer.points, MAX_POINTS_PER_QUESTION));
+              const percentage = (normalizedPoints / MAX_POINTS_PER_QUESTION) * 100;
               return (
                 <div key={index} className="group hover:bg-slate-700/20 transition-all duration-300 rounded-xl p-5 border border-slate-600/20 hover:border-slate-500/40">
                   <div className="flex items-start gap-4">
@@ -263,7 +265,7 @@ export const InterviewResultsView = ({
                         </h4>
                         
                         {/* Barra de progreso horizontal */}
-                        <div className="w-full bg-slate-600/50 rounded-full h-2 mb-3">
+                        <div className="w-full bg-slate-600/50 rounded-full h-2 mb-1">
                           <div 
                             className={`h-2 rounded-full transition-all duration-1000 ${
                               answer.points >= 80 ? 'bg-gradient-to-r from-emerald-500 to-emerald-400' :
@@ -273,6 +275,9 @@ export const InterviewResultsView = ({
                             style={{ width: `${percentage}%` }}
                           ></div>
                         </div>
+                        <p className="text-[11px] text-slate-400">
+                          Puntuación de esta pregunta: <span className="text-slate-100 font-semibold">{answer.points}</span> / 10
+                        </p>
                       </div>
 
                       {/* Respuesta del usuario */}
