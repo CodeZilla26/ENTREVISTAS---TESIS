@@ -6,6 +6,6 @@ export * from './shared';
 // Tab de Participantes
 export * from './ParticipantsTab';
 
-// Nota: Los tabs de Entrevistas y Resultados se agregarán en futuras iteraciones
-// export * from './InterviewsTab';
+// Tab de Resultados
+export { default as InterviewResultsTab } from './InterviewResultsTab';
 // export * from './ResultsTab';

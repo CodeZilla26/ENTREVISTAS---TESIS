@@ -2,6 +2,7 @@
 
 import React from 'react';
 import { useAuth } from '@/context/AuthContext';
+import { CompletedInterview } from '@/types';
 
 // Importar hooks personalizados
 import {
@@ -22,7 +23,8 @@ import {
 // Importar componentes UI
 import {
   LoadingSpinner,
-  ParticipantsTab
+  ParticipantsTab,
+  InterviewResultsTab
 } from './components';
 
 // Importar utilidades
@@ -40,6 +42,8 @@ interface RecruiterPanelProps {
 
 export const RecruiterPanel = ({ activeTab, onShowToast }: RecruiterPanelProps) => {
   const { getAuthFetch, isAuthenticated } = useAuth();
+
+  const [selectedInterview, setSelectedInterview] = React.useState<CompletedInterview | null>(null);
 
   // Hook principal para gestión de datos
   const recruiterData = useRecruiterData({ activeTab, onShowToast });
@@ -131,210 +135,119 @@ export const RecruiterPanel = ({ activeTab, onShowToast }: RecruiterPanelProps) 
 
   // Renderizar tab de entrevistas
   if (activeTab === 'interviews') {
-    // Calcular estadísticas reales
     const totalInterviews = recruiterData.interviews.length;
-    const activeInterviews = recruiterData.interviews.filter(i => i.status === 'Activa').length;
-    const draftInterviews = recruiterData.interviews.filter(i => i.status === 'Borrador').length;
-    const archivedInterviews = recruiterData.interviews.filter(i => i.status === 'Finalizada').length;
 
     return (
-      <div className="w-full h-full relative">
-        {/* Decorative gradient overlays - similar to sidebar */}
-        <div className="absolute inset-0 bg-gradient-to-br from-purple-500/5 via-transparent to-indigo-500/5 pointer-events-none"></div>
-        <div className="absolute top-0 left-0 w-full h-32 bg-gradient-to-b from-white/5 to-transparent pointer-events-none"></div>
-        
-        <div className="relative p-8">
-          {/* Dashboard Header with sidebar-style design */}
-          <div className="bg-gradient-to-br from-slate-800/95 to-slate-900/95 backdrop-blur-xl border border-slate-600/30 rounded-2xl p-8 mb-8 shadow-2xl relative overflow-hidden">
-            {/* Header decorative overlay */}
-            <div className="absolute inset-0 bg-gradient-to-r from-purple-500/10 to-indigo-500/10 pointer-events-none"></div>
-            <div className="absolute top-0 right-0 w-64 h-64 bg-gradient-to-bl from-purple-500/10 to-transparent rounded-full blur-3xl pointer-events-none"></div>
-            
-            <div className="relative flex items-center justify-between">
-              <div className="flex items-center space-x-6">
-                {/* Icon with sidebar-style design */}
-                <div className="w-16 h-16 rounded-xl flex items-center justify-center shadow-lg border-2 border-white/20 hover:border-white/40 transition-all duration-300 hover:shadow-xl hover:shadow-purple-500/25" style={{ backgroundImage: 'linear-gradient(to bottom right, var(--primary-from), var(--primary-to))' }}>
-                  <svg className="w-8 h-8 text-white" fill="currentColor" viewBox="0 0 20 20">
-                    <path fillRule="evenodd" d="M4 4a2 2 0 012-2h8a2 2 0 012 2v12a2 2 0 01-2 2H6a2 2 0 01-2-2V4zm2 0v12h8V4H6z" clipRule="evenodd"/>
-                  </svg>
-                </div>
-                
-                <div>
-                  <h2 className="text-3xl font-bold text-slate-100 mb-2" style={{ backgroundImage: 'linear-gradient(to right, var(--heading-from), var(--heading-to))' }}>
-                    Gestión de Entrevistas
-                  </h2>
-                  <p className="text-slate-400 text-lg">Crea, edita y administra todas las entrevistas del sistema</p>
-                </div>
-              </div>
-              
-              {/* Action button with sidebar styling */}
-              <button 
+      <div className="w-full h-full relative p-6">
+        <div className="mb-6 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+          <div>
+            <h2 className="text-2xl font-bold text-white">Entrevistas</h2>
+            <p className="text-slate-400 text-sm max-w-xl">
+              Crea y gestiona las entrevistas que se asignarán a los participantes.
+            </p>
+          </div>
+          <div className="flex items-center gap-3">
+            <span className="text-xs text-slate-400 hidden sm:inline">
+              Total: <span className="font-semibold text-slate-100">{totalInterviews}</span>
+            </span>
+            <button
+              onClick={() => interviewsHook.setShowCreateInterviewModal(true)}
+              className="inline-flex items-center px-4 py-2 border border-indigo-500/60 text-sm font-medium rounded-md shadow-sm text-white bg-indigo-600 hover:bg-indigo-700 hover:border-indigo-400 transition-colors"
+            >
+              <span className="mr-2">＋</span>
+              Crear entrevista
+            </button>
+          </div>
+        </div>
+
+        <div className="bg-transparent">
+          {totalInterviews === 0 ? (
+            <div className="bg-slate-800/70 rounded-xl border border-slate-700/70 p-10 text-center text-slate-400 text-sm">
+              <p className="mb-2 text-slate-100 font-medium">Aún no has creado entrevistas</p>
+              <p className="mb-4 text-slate-400">
+                Crea tu primera entrevista para poder asignarla a los participantes y empezar a recibir resultados.
+              </p>
+              <button
                 onClick={() => interviewsHook.setShowCreateInterviewModal(true)}
-                className="text-white px-6 py-3 rounded-xl font-semibold shadow-lg hover:shadow-xl transition-all duration-300 border border-white/20 hover:border-white/30"
-                style={{ backgroundImage: 'linear-gradient(to right, var(--primary-from), var(--primary-to))' }}
+                className="inline-flex items-center px-4 py-2 border border-indigo-500/60 text-xs font-medium rounded-md shadow-sm text-white bg-indigo-600 hover:bg-indigo-700 hover:border-indigo-400 transition-colors"
               >
-                <div className="flex items-center space-x-2">
-                  <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
-                    <path fillRule="evenodd" d="M10 3a1 1 0 011 1v5h5a1 1 0 110 2h-5v5a1 1 0 11-2 0v-5H4a1 1 0 110-2h5V4a1 1 0 011-1z" clipRule="evenodd"/>
-                  </svg>
-                  <span>Nueva Entrevista</span>
-                </div>
+                Crear primera entrevista
               </button>
             </div>
-          </div>
-
-          {/* Loading State */}
-          {recruiterData.isLoadingTabData ? (
-            <div className="flex items-center justify-center py-16">
-              <div className="text-center">
-                <div className="w-8 h-8 border-2 border-purple-500 border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
-                <p className="text-slate-400">Cargando entrevistas...</p>
-              </div>
-            </div>
           ) : (
-            <>
-              {/* Stats Cards with real data */}
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
-                {[
-                  { title: 'Total Entrevistas', value: totalInterviews.toString(), icon: '📋' },
-                  { title: 'Activas', value: activeInterviews.toString(), icon: '✅' },
-                  { title: 'Borradores', value: draftInterviews.toString(), icon: '📝' },
-                  { title: 'Inactivas', value: archivedInterviews.toString(), icon: '📦' }
-                ].map((stat, index) => (
-                  <div key={index} className="bg-gradient-to-br from-slate-800/95 to-slate-900/95 backdrop-blur-xl border border-slate-600/30 rounded-2xl p-6 shadow-xl hover:shadow-2xl transition-all duration-300 relative overflow-hidden group">
-                    <div
-                      className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-300 pointer-events-none"
-                      style={{ backgroundImage: 'linear-gradient(to right, var(--heading-from), var(--heading-to))' }}
-                    ></div>
-                    <div className="relative">
-                      <div className="flex items-center justify-between mb-4">
-                        <div
-                          className="w-12 h-12 rounded-xl flex items-center justify-center text-white text-xl shadow-lg"
-                          style={{ backgroundImage: 'linear-gradient(to right, var(--primary-from), var(--primary-to))' }}
-                        >
-                          {stat.icon}
-                        </div>
-                        <div className="text-right">
-                          <div className="text-2xl font-bold text-slate-100">{stat.value}</div>
-                        </div>
-                      </div>
-                      <h3 className="text-slate-300 font-medium">{stat.title}</h3>
-                    </div>
-                  </div>
-                ))}
-              </div>
+            <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-3">
+              {recruiterData.interviews.map((interview) => (
+                <div
+                  key={interview.id}
+                  className="relative bg-gradient-to-br from-slate-900/90 via-slate-800/90 to-slate-900/90 border border-slate-700/80 rounded-2xl p-4 sm:p-5 shadow-[0_18px_40px_rgba(15,23,42,0.8)] hover:shadow-[0_24px_60px_rgba(129,140,248,0.35)] hover:border-indigo-400/70 transition-all flex flex-col h-full overflow-hidden"
+                >
+                  <div className="absolute inset-x-0 top-0 h-0.5 bg-gradient-to-r from-indigo-500 via-purple-500 to-cyan-400 opacity-70" />
 
-              {/* Interviews List */}
-              {recruiterData.interviews.length > 0 ? (
-                <div className="bg-gradient-to-br from-slate-800/95 to-slate-900/95 backdrop-blur-xl border border-slate-600/30 rounded-2xl p-8 shadow-2xl relative overflow-hidden">
-                  <div className="absolute inset-0 bg-gradient-to-r from-purple-500/5 to-indigo-500/5 pointer-events-none"></div>
-                  
-                  <div className="relative">
-                    <h3 className="text-xl font-bold text-slate-100 mb-6 flex items-center">
-                      <div className="w-8 h-8 rounded-lg flex items-center justify-center mr-3" style={{ backgroundImage: 'linear-gradient(to right, var(--primary-from), var(--primary-to))' }}>
-                        📋
-                      </div>
-                      Lista de Entrevistas
-                    </h3>
-                    
-                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                      {recruiterData.interviews.map((interview) => (
-                        <div key={interview.id} className="bg-slate-700/30 rounded-xl p-6 hover:bg-slate-700/50 transition-all duration-300 border border-slate-600/20">
-                          <div className="flex items-start justify-between mb-4">
-                            <div className="flex-1">
-                              <h4 className="text-lg font-semibold text-slate-100 mb-2">{interview.title}</h4>
-                              <p className="text-slate-400 text-sm mb-3 line-clamp-2">{interview.description}</p>
-                            </div>
-                            <div
-                              className="px-3 py-1 rounded-full text-xs font-medium"
-                              style={{
-                                backgroundColor:
-                                  interview.status === 'Activa'
-                                    ? 'var(--status-active-bg)'
-                                    : interview.status === 'Borrador'
-                                      ? 'var(--status-draft-bg)'
-                                      : 'var(--status-inactive-bg)',
-                                color:
-                                  interview.status === 'Activa'
-                                    ? 'var(--status-active-text)'
-                                    : interview.status === 'Borrador'
-                                      ? 'var(--status-draft-text)'
-                                      : 'var(--status-inactive-text)'
-                              }}
-                            >
-                              {interview.status}
-                            </div>
-                          </div>
-                          
-                          <div className="flex items-center justify-between text-sm text-slate-400 mb-4">
-                            <span>{interview.questions?.length || 0} preguntas</span>
-                            <span>{formatDate(interview.createdAt)}</span>
-                          </div>
-                          
-                          <div className="flex">
-                            <button
-                              onClick={() => interviewsHook.handleDeleteInterview(String(interview.id))}
-                              disabled={interviewsHook.deletingId === String(interview.id)}
-                              className={`w-full px-4 py-2 rounded-lg transition-all duration-300 ${
-                                interviewsHook.deletingId === String(interview.id) ? 'cursor-not-allowed' : ''
-                              }`}
-                              style={{
-                                backgroundColor: interviewsHook.deletingId === String(interview.id)
-                                  ? 'var(--danger-disabled-bg)'
-                                  : 'var(--danger-bg)',
-                                color: interviewsHook.deletingId === String(interview.id)
-                                  ? 'var(--danger-disabled-text)'
-                                  : 'var(--danger-text)'
-                              }}
-                              onMouseEnter={(e) => {
-                                if (interviewsHook.deletingId === String(interview.id)) return;
-                                (e.currentTarget as HTMLButtonElement).style.backgroundColor = 'var(--danger-bg-hover)';
-                              }}
-                              onMouseLeave={(e) => {
-                                if (interviewsHook.deletingId === String(interview.id)) return;
-                                (e.currentTarget as HTMLButtonElement).style.backgroundColor = 'var(--danger-bg)';
-                              }}
-                            >
-                              {interviewsHook.deletingId === String(interview.id) ? 'Eliminando…' : '🗑️ Eliminar'}
-                            </button>
-                          </div>
+                  <div className="flex items-start justify-between gap-3 mb-3">
+                    <div className="min-w-0 flex-1">
+                      <div className="flex items-center gap-2 mb-1">
+                        <div className="w-6 h-6 rounded-lg bg-indigo-500/15 border border-indigo-400/40 flex items-center justify-center text-[11px] text-indigo-300">
+                          AI
                         </div>
-                      ))}
+                        <p className="text-sm font-semibold text-slate-50 truncate">
+                          {interview.title}
+                        </p>
+                      </div>
+                      <p className="text-[11px] text-slate-500 mt-0.5 truncate">
+                        Creada el {formatDate(interview.createdAt)}
+                      </p>
                     </div>
-                  </div>
-                </div>
-              ) : (
-                /* Empty State */
-                <div className="bg-gradient-to-br from-slate-800/95 to-slate-900/95 backdrop-blur-xl border border-slate-600/30 rounded-2xl p-8 shadow-2xl relative overflow-hidden">
-                  <div className="absolute inset-0 bg-gradient-to-r from-purple-500/5 to-indigo-500/5 pointer-events-none"></div>
-                  
-                  <div className="relative text-center py-16">
-                    <div className="w-24 h-24 bg-gradient-to-br from-purple-500 to-indigo-600 rounded-2xl flex items-center justify-center mx-auto mb-6 shadow-2xl border-2 border-white/20">
-                      <svg className="w-12 h-12 text-white" fill="currentColor" viewBox="0 0 20 20">
-                        <path fillRule="evenodd" d="M3 4a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zm0 4a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zm0 4a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zm0 4a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1z" clipRule="evenodd"/>
-                      </svg>
-                    </div>
-                    
-                    <h3 className="text-2xl font-bold text-slate-100 mb-4">No hay entrevistas creadas</h3>
-                    <p className="text-slate-400 text-lg mb-8 max-w-2xl mx-auto">
-                      Comienza creando tu primera entrevista. Podrás agregar preguntas personalizadas y configurar todos los detalles.
-                    </p>
-                    
-                    <button 
-                      onClick={() => interviewsHook.setShowCreateInterviewModal(true)}
-                      className="text-white px-8 py-4 rounded-xl font-semibold shadow-lg hover:shadow-xl transition-all duration-300 border border-white/20 hover:border-white/30"
-                      style={{ backgroundImage: 'linear-gradient(to right, var(--primary-from), var(--primary-to))' }}
+                    <span
+                      className="text-[11px] px-2 py-0.5 rounded-full border flex-shrink-0 backdrop-blur"
+                      style={{
+                        borderColor:
+                          interview.status === 'Activa'
+                            ? 'rgba(34,197,94,0.7)'
+                            : interview.status === 'Borrador'
+                            ? 'rgba(148,163,184,0.8)'
+                            : 'rgba(248,113,113,0.8)',
+                        backgroundColor:
+                          interview.status === 'Activa'
+                            ? 'rgba(22,163,74,0.25)'
+                            : interview.status === 'Borrador'
+                            ? 'rgba(148,163,184,0.18)'
+                            : 'rgba(248,113,113,0.18)',
+                        color:
+                          interview.status === 'Activa'
+                            ? '#bbf7d0'
+                            : interview.status === 'Borrador'
+                            ? '#e5e7eb'
+                            : '#fecaca',
+                      }}
                     >
-                      Crear Primera Entrevista
+                      {interview.status}
+                    </span>
+                  </div>
+
+                  <p className="text-xs text-slate-200/90 line-clamp-3 flex-1">
+                    {interview.description}
+                  </p>
+
+                  <div className="mt-3 flex items-center justify-between text-[11px] text-slate-400">
+                    <span>{interview.questions?.length || 0} preguntas</span>
+                    <span className="text-[10px] text-slate-500">ID {String(interview.id).slice(0, 6)}...</span>
+                  </div>
+
+                  <div className="mt-4 flex items-center justify-end gap-2">
+                    <button
+                      onClick={() => interviewsHook.handleDeleteInterview(String(interview.id))}
+                      className="text-[11px] px-3 py-1 rounded-md border border-red-500/50 text-red-300 hover:bg-red-500/15 hover:border-red-400 transition-colors"
+                    >
+                      Eliminar
                     </button>
                   </div>
                 </div>
-              )}
-            </>
+              ))}
+            </div>
           )}
         </div>
 
-        {/* Create Interview Modal */}
+        {/* Modal para crear entrevista (se mantiene igual) */}
         {interviewsHook.showCreateInterviewModal && (
           <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50 p-4">
             <div className="bg-gradient-to-br from-slate-800/95 to-slate-900/95 backdrop-blur-xl border border-slate-600/30 rounded-2xl p-8 max-w-4xl w-full max-h-[90vh] overflow-y-auto shadow-2xl">
@@ -342,7 +255,7 @@ export const RecruiterPanel = ({ activeTab, onShowToast }: RecruiterPanelProps) 
                 <h3 className="text-2xl font-bold text-slate-100">
                   {!interviewsHook.showQuestions ? 'Nueva Entrevista' : 'Preguntas Generadas con IA'}
                 </h3>
-                <button 
+                <button
                   onClick={() => {
                     interviewsHook.setShowCreateInterviewModal(false);
                     interviewsHook.setShowQuestions(false);
@@ -352,11 +265,11 @@ export const RecruiterPanel = ({ activeTab, onShowToast }: RecruiterPanelProps) 
                   className="text-slate-400 hover:text-slate-200 transition-colors"
                 >
                   <svg className="w-6 h-6" fill="currentColor" viewBox="0 0 20 20">
-                    <path fillRule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clipRule="evenodd"/>
+                    <path fillRule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clipRule="evenodd" />
                   </svg>
                 </button>
               </div>
-              
+
               {!interviewsHook.showQuestions ? (
                 /* Paso 1: Formulario inicial */
                 <form onSubmit={interviewsHook.handleGenerateQuestions} className="space-y-6">
@@ -549,227 +462,102 @@ export const RecruiterPanel = ({ activeTab, onShowToast }: RecruiterPanelProps) 
 
   // Renderizar tab de resultados
   if (activeTab === 'results') {
-    // Usar estadísticas del hook especializado
-    const stats = completedInterviewsHook.getStatistics();
-    const totalCompleted = stats.totalInterviews;
-    const averageScore = stats.averageScore.toFixed(1);
-    const averageTime = totalCompleted > 0
-      ? Math.round(recruiterData.completedInterviews.reduce((sum, i) => sum + i.duration, 0) / totalCompleted)
-      : 0;
-    const completionRate = recruiterData.participants.length > 0
-      ? Math.round((totalCompleted / recruiterData.participants.length) * 100)
-      : 0;
+    const handleViewInterview = (interview: CompletedInterview) => {
+      setSelectedInterview(interview);
+    };
+
     return (
-      <div className="w-full h-full relative">
-        {/* Decorative gradient overlays - EXACTOS del sidebar */}
-        <div className="absolute inset-0 bg-gradient-to-br from-indigo-500/5 via-transparent to-purple-500/5 pointer-events-none"></div>
-        <div className="absolute top-0 left-0 w-full h-32 bg-gradient-to-b from-white/5 to-transparent pointer-events-none"></div>
-        
-        <div className="relative p-4 sm:p-6 lg:p-8">
-          {/* Dashboard Header with sidebar-style design */}
-          <div className="bg-gradient-to-br from-slate-800/95 to-slate-900/95 backdrop-blur-xl border border-slate-600/30 rounded-2xl p-8 mb-8 shadow-2xl relative overflow-hidden">
-            {/* Header decorative overlay - EXACTO del sidebar */}
-            <div className="absolute inset-0 bg-gradient-to-r from-indigo-500/10 to-purple-500/10 pointer-events-none"></div>
-            <div className="absolute top-0 right-0 w-64 h-64 bg-gradient-to-bl from-indigo-500/10 to-transparent rounded-full blur-3xl pointer-events-none"></div>
-            
-            <div className="relative flex items-center justify-between">
-              <div className="flex items-center space-x-6">
-                {/* Icon with EXACTO estilo del sidebar */}
-                <div className="bg-gradient-to-br from-indigo-500 to-purple-600 w-16 h-16 rounded-xl flex items-center justify-center shadow-lg border-2 border-white/20 hover:border-white/40 transition-all duration-300 hover:shadow-xl hover:shadow-indigo-500/25">
-                  <svg className="w-8 h-8 text-white" fill="currentColor" viewBox="0 0 20 20">
-                    <path fillRule="evenodd" d="M3 3a1 1 0 000 2v8a2 2 0 002 2h2.586l-1.293 1.293a1 1 0 101.414 1.414L10 15.414l2.293 2.293a1 1 0 001.414-1.414L12.414 15H15a2 2 0 002-2V5a1 1 0 100-2H3zm11.707 4.707a1 1 0 00-1.414-1.414L10 9.586 8.707 6.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd"/>
-                  </svg>
-                </div>
-                
-                <div>
-                  <h2 className="text-3xl font-bold text-slate-100 mb-2">Análisis de Resultados</h2>
-                  <p className="text-slate-400 text-lg">Revisa el rendimiento y estadísticas de todas las entrevistas</p>
-                </div>
-              </div>
-              
-              {/* Action button con EXACTO estilo del sidebar */}
-              <button 
-                onClick={() => onShowToast('Función de exportar en desarrollo', 'info')}
-                className="bg-gradient-to-r from-indigo-600/80 to-purple-600/80 hover:from-indigo-600/90 hover:to-purple-600/90 text-white px-6 py-3 rounded-xl font-semibold shadow-lg hover:shadow-xl transition-all duration-300 border border-indigo-500/30 hover:shadow-indigo-500/25 backdrop-blur-sm"
-              >
-                <div className="flex items-center space-x-2">
-                  <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
-                    <path fillRule="evenodd" d="M3 3a1 1 0 000 2v8a2 2 0 002 2h2.586l-1.293 1.293a1 1 0 101.414 1.414L10 15.414l2.293 2.293a1 1 0 001.414-1.414L12.414 15H15a2 2 0 002-2V5a1 1 0 100-2H3zm11.707 4.707a1 1 0 00-1.414-1.414L10 9.586 8.707 6.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd"/>
-                  </svg>
-                  <span>Exportar Reporte</span>
-                </div>
-              </button>
-            </div>
+      <div className="w-full h-full p-6">
+        <div className="max-w-6xl mx-auto space-y-6">
+          <div>
+            <h2 className="text-2xl font-bold text-white">Resultados de entrevistas</h2>
+            <p className="text-slate-400 text-sm">
+              Lista de entrevistas completadas por los candidatos.
+            </p>
           </div>
 
-          {/* Performance Stats Cards with real data */}
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
-            {[
-              { title: 'Entrevistas Completadas', value: totalCompleted.toString(), icon: '✅', color: 'from-indigo-500 to-purple-600', bg: 'bg-indigo-500/10', trend: `${totalCompleted > 0 ? '+' : ''}${totalCompleted}` },
-              { title: 'Puntuación Promedio', value: averageScore, icon: '⭐', color: 'from-indigo-600 to-purple-500', bg: 'bg-purple-500/10', trend: `${parseFloat(averageScore) > 5 ? '+' : ''}${averageScore}` },
-              { title: 'Tiempo Promedio', value: `${averageTime}m`, icon: '⏱️', color: 'from-purple-500 to-indigo-600', bg: 'bg-indigo-500/10', trend: `${averageTime}min` },
-              { title: 'Tasa de Finalización', value: `${completionRate}%`, icon: '📊', color: 'from-purple-600 to-indigo-500', bg: 'bg-purple-500/10', trend: `${completionRate}%` }
-            ].map((stat, index) => (
-              <div key={index} className="bg-gradient-to-br from-slate-800/95 to-slate-900/95 backdrop-blur-xl border border-slate-600/30 rounded-2xl p-6 shadow-xl hover:shadow-2xl transition-all duration-300 relative overflow-hidden group">
-                <div className={`absolute inset-0 ${stat.bg} opacity-0 group-hover:opacity-100 transition-opacity duration-300 pointer-events-none`}></div>
-                <div className="relative">
-                  <div className="flex items-center justify-between mb-4">
-                    <div className={`bg-gradient-to-r ${stat.color} w-12 h-12 rounded-xl flex items-center justify-center text-white text-xl shadow-lg`}>
-                      {stat.icon}
-                    </div>
-                    <div className="text-right">
-                      <div className="text-2xl font-bold text-slate-100">{stat.value}</div>
-                      <div className="text-sm text-emerald-400 font-medium">{stat.trend}</div>
-                    </div>
-                  </div>
-                  <h3 className="text-slate-300 font-medium">{stat.title}</h3>
-                </div>
-              </div>
-            ))}
-          </div>
-
-          {/* Charts and Analytics Section */}
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-8">
-            {/* Performance Chart */}
-            <div className="bg-gradient-to-br from-slate-800/95 to-slate-900/95 backdrop-blur-xl border border-slate-600/30 rounded-2xl p-8 shadow-2xl relative overflow-hidden">
-              <div className="absolute inset-0 bg-gradient-to-r from-indigo-500/5 to-purple-500/5 pointer-events-none"></div>
-              
-              <div className="relative">
-                <h3 className="text-xl font-bold text-slate-100 mb-6 flex items-center">
-                  <div className="w-8 h-8 bg-gradient-to-r from-indigo-500 to-purple-600 rounded-lg flex items-center justify-center mr-3">
-                    📈
-                  </div>
-                  Rendimiento por Mes
-                </h3>
-                
-                <div className="h-64 flex items-end justify-between space-x-2">
-                  {[
-                    { month: 'Ene', value: stats.excellentPercentage || 65, count: stats.excellentCount },
-                    { month: 'Feb', value: stats.goodPercentage || 78, count: stats.goodCount },
-                    { month: 'Mar', value: stats.needsImprovementPercentage || 82, count: stats.needsImprovementCount },
-                    { month: 'Abr', value: Math.min(stats.averageScore * 10, 100) || 71, count: totalCompleted },
-                    { month: 'May', value: completionRate || 89, count: recruiterData.participants.length },
-                    { month: 'Jun', value: Math.min((averageTime / 60) * 100, 100) || 94, count: averageTime }
-                  ].map((data, index) => (
-                    <div key={index} className="flex-1 flex flex-col items-center group">
-                      <div 
-                        className="w-full bg-gradient-to-t from-indigo-500 to-purple-400 rounded-t-lg transition-all duration-1000 hover:from-indigo-400 hover:to-purple-300 cursor-pointer relative"
-                        style={{ height: `${Math.max(data.value, 5)}%` }}
-                        title={`${data.month}: ${data.value.toFixed(1)}% (${data.count})`}
-                      >
-                        <div className="absolute -top-8 left-1/2 transform -translate-x-1/2 bg-slate-800 text-white text-xs px-2 py-1 rounded opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap">
-                          {data.value.toFixed(1)}%
-                        </div>
-                      </div>
-                      <div className="text-slate-400 text-sm mt-2">
-                        {data.month}
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              </div>
-            </div>
-
-            {/* Top Performers */}
-            <div className="bg-gradient-to-br from-slate-800/95 to-slate-900/95 backdrop-blur-xl border border-slate-600/30 rounded-2xl p-8 shadow-2xl relative overflow-hidden">
-              <div className="absolute inset-0 bg-gradient-to-r from-indigo-500/5 to-purple-500/5 pointer-events-none"></div>
-              
-              <div className="relative">
-                <h3 className="text-xl font-bold text-slate-100 mb-6 flex items-center">
-                  <div className="w-8 h-8 bg-gradient-to-r from-indigo-500 to-purple-600 rounded-lg flex items-center justify-center mr-3">
-                    🏆
-                  </div>
-                  Mejores Resultados
-                </h3>
-                
-                <div className="space-y-4">
-                  {recruiterData.completedInterviews.length > 0 ? (
-                    recruiterData.completedInterviews
-                      .sort((a, b) => b.score - a.score)
-                      .slice(0, 4)
-                      .map((interview, index) => (
-                      <div key={interview.id} className="flex items-center justify-between p-4 bg-slate-700/30 rounded-xl hover:bg-slate-700/50 transition-all duration-300">
-                        <div className="flex items-center space-x-4">
-                          <div className="w-10 h-10 bg-gradient-to-r from-indigo-500 to-purple-600 rounded-lg flex items-center justify-center text-white text-lg">
-                            {index === 0 ? '🥇' : index === 1 ? '🥈' : index === 2 ? '🥉' : '🏅'}
-                          </div>
-                          <div>
-                            <div className="text-slate-100 font-semibold">{interview.userName}</div>
-                            <div className="text-slate-400 text-sm">{interview.interviewTitle}</div>
-                          </div>
-                        </div>
-                        <div className="text-right">
-                          <div className="text-indigo-400 font-bold text-lg">{interview.score}</div>
-                          <div className="text-slate-400 text-sm">puntos</div>
-                        </div>
-                      </div>
-                    ))
-                  ) : (
-                    <div className="text-center py-8">
-                      <div className="text-slate-400 text-lg mb-2">📊</div>
-                      <p className="text-slate-400">No hay entrevistas completadas aún</p>
-                    </div>
-                  )}
-                </div>
-              </div>
-            </div>
-          </div>
-
-          {/* Main Content Area */}
-          <div className="bg-gradient-to-br from-slate-800/95 to-slate-900/95 backdrop-blur-xl border border-slate-600/30 rounded-2xl p-8 shadow-2xl relative overflow-hidden">
-            <div className="absolute inset-0 bg-gradient-to-r from-indigo-500/5 to-purple-500/5 pointer-events-none"></div>
-            
-            <div className="relative text-center py-16">
-              <div className="w-24 h-24 bg-gradient-to-br from-indigo-500 to-purple-600 rounded-2xl flex items-center justify-center mx-auto mb-6 shadow-2xl border-2 border-white/20">
-                <svg className="w-12 h-12 text-white" fill="currentColor" viewBox="0 0 20 20">
-                  <path fillRule="evenodd" d="M2.166 4.999A11.954 11.954 0 0010 1.944 11.954 11.954 0 0017.834 5c.11.65.166 1.32.166 2.001 0 5.225-3.34 9.67-8 11.317C5.34 16.67 2 12.225 2 7c0-.682.057-1.35.166-2.001zm11.541 3.708a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd"/>
-                </svg>
-              </div>
-              
-              <h3 className="text-2xl font-bold text-slate-100 mb-4">Centro de Análisis</h3>
-              <p className="text-slate-400 text-lg mb-6 max-w-2xl mx-auto">
-                Explora métricas detalladas, tendencias de rendimiento y insights valiosos sobre el proceso de entrevistas.
-              </p>
-              
-              {/* Estadísticas detalladas */}
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-8 max-w-4xl mx-auto">
-                <div className="bg-slate-700/30 rounded-xl p-4 text-center">
-                  <div className="text-2xl font-bold text-indigo-400">{stats.excellentCount}</div>
-                  <div className="text-slate-300 text-sm">Excelentes (≥80)</div>
-                  <div className="text-slate-400 text-xs">{stats.excellentPercentage.toFixed(1)}%</div>
-                </div>
-                <div className="bg-slate-700/30 rounded-xl p-4 text-center">
-                  <div className="text-2xl font-bold text-purple-400">{stats.goodCount}</div>
-                  <div className="text-slate-300 text-sm">Buenos (60-79)</div>
-                  <div className="text-slate-400 text-xs">{stats.goodPercentage.toFixed(1)}%</div>
-                </div>
-                <div className="bg-slate-700/30 rounded-xl p-4 text-center">
-                  <div className="text-2xl font-bold text-red-400">{stats.needsImprovementCount}</div>
-                  <div className="text-slate-300 text-sm">A Mejorar (&lt;60)</div>
-                  <div className="text-slate-400 text-xs">{stats.needsImprovementPercentage.toFixed(1)}%</div>
-                </div>
-              </div>
-              
-              <div className="flex flex-col sm:flex-row gap-4 justify-center">
-                <button 
-                  onClick={() => {
-                    const stats = completedInterviewsHook.getStatistics();
-                    onShowToast(`Análisis actualizado: ${stats.totalInterviews} entrevistas, promedio ${stats.averageScore.toFixed(1)}`, 'success');
-                  }}
-                  className="bg-gradient-to-r from-indigo-600/80 to-purple-600/80 hover:from-indigo-600/90 hover:to-purple-600/90 text-white px-8 py-4 rounded-xl font-semibold shadow-lg hover:shadow-xl transition-all duration-300 border border-indigo-500/30 hover:shadow-indigo-500/25 backdrop-blur-sm"
-                >
-                  Ver Estadísticas Detalladas
-                </button>
-                <button 
-                  onClick={() => onShowToast('Función de exportar reportes en desarrollo', 'info')}
-                  className="text-slate-300 hover:bg-slate-700/50 hover:text-white hover:shadow-md hover:border-slate-600/50 border border-transparent px-8 py-4 rounded-xl font-semibold transition-all duration-300"
-                >
-                  Exportar Reporte
-                </button>
-              </div>
-            </div>
+          <div className="bg-slate-800/70 border border-slate-700/70 rounded-xl overflow-hidden">
+            <InterviewResultsTab
+              completedInterviews={recruiterData.completedInterviews}
+              isLoading={recruiterData.isLoadingTabData}
+              onViewInterview={handleViewInterview}
+            />
           </div>
         </div>
+
+        {selectedInterview && (
+          <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm">
+            <div className="bg-slate-900 w-full max-w-3xl mx-4 rounded-2xl border border-slate-700 shadow-2xl overflow-hidden">
+              <div className="px-6 py-4 border-b border-slate-700 flex items-center justify-between">
+                <div>
+                  <h3 className="text-xl font-semibold text-slate-100">
+                    Detalles de la entrevista
+                  </h3>
+                  <p className="text-xs text-slate-400 mt-1">
+                    {selectedInterview.userName} · {selectedInterview.interviewTitle}
+                  </p>
+                </div>
+                <button
+                  onClick={() => setSelectedInterview(null)}
+                  className="text-slate-400 hover:text-slate-200 text-sm"
+                >
+                  Cerrar
+                </button>
+              </div>
+
+              <div className="px-6 py-4 space-y-4 max-h-[70vh] overflow-y-auto">
+                <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 text-xs">
+                  <div className="bg-slate-800/70 rounded-lg p-3">
+                    <p className="text-slate-400">Puntuación</p>
+                    <p className="text-lg font-semibold text-slate-100">{Math.round(selectedInterview.score)}%</p>
+                  </div>
+                  <div className="bg-slate-800/70 rounded-lg p-3">
+                    <p className="text-slate-400">Duración</p>
+                    <p className="text-lg font-semibold text-slate-100">{Math.round(selectedInterview.duration / 60)} min</p>
+                  </div>
+                  <div className="bg-slate-800/70 rounded-lg p-3">
+                    <p className="text-slate-400">Fecha</p>
+                    <p className="text-xs font-medium text-slate-100">
+                      {new Date(selectedInterview.date).toLocaleDateString('es-ES', {
+                        day: 'numeric',
+                        month: 'long',
+                        year: 'numeric',
+                      })}
+                    </p>
+                  </div>
+                </div>
+
+                <div>
+                  <h4 className="text-sm font-semibold text-slate-100 mb-2">
+                    Respuestas por pregunta
+                  </h4>
+                  <div className="space-y-3">
+                    {selectedInterview.answers.map((answer, index) => (
+                      <div key={index} className="bg-slate-800/70 border border-slate-700 rounded-lg p-3 text-xs">
+                        <div className="flex items-start justify-between gap-2 mb-2">
+                          <p className="text-slate-200 font-medium">
+                            {index + 1}. {answer.questionText}
+                          </p>
+                          <span className="text-[11px] px-2 py-0.5 rounded-full bg-slate-700 text-slate-200">
+                            {answer.points} pts
+                          </span>
+                        </div>
+                        <p className="text-slate-300 text-xs whitespace-pre-wrap break-words">
+                          {answer.responseText || 'Sin respuesta registrada.'}
+                        </p>
+                        {answer.description && (
+                          <p className="mt-2 text-[11px] text-slate-400">
+                            {answer.description}
+                          </p>
+                        )}
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        )}
       </div>
     );
   }

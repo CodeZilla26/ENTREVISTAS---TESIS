@@ -12,11 +12,13 @@
     "env:validate": "node -e \"const missing = ['NEXT_PUBLIC_API_BASE_URL', 'INTERVIEWS_JWT', 'OPENROUTER_API_KEY'].filter(k => !process.env[k]); if (missing.length) { console.error('❌ Missing required environment variables:', missing); process.exit(1); } else { console.log('✅ All required environment variables are set'); }\""
   },
   "dependencies": {
-    "react": "^18",
-    "react-dom": "^18",
-    "next": "14.2.15",
+    "@types/date-fns": "^2.5.3",
+    "date-fns": "^4.1.0",
     "lucide-react": "^0.454.0",
-    "openai": "^4.67.3"
+    "next": "14.2.15",
+    "openai": "^4.67.3",
+    "react": "^18",
+    "react-dom": "^18"
   },
   "devDependencies": {
     "@types/node": "^20",
