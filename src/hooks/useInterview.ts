@@ -299,17 +299,23 @@ export const useInterview = () => {
     }
     
     // Calcular duración total de la entrevista
-    let durationMinutes = 0;
+    // durationMinutes (estado) se mantiene en minutos para la UI,
+    // pero el valor que se envía a la API (durationMinutes en el FormData)
+    // será el TOTAL EN SEGUNDOS, según tu nueva preferencia.
+    let durationMinutes = 0; // para estado local/UI
+    let durationSeconds = 0; // para API
     if (interviewStartTime) {
       const endTime = Date.now();
       const durationMs = endTime - interviewStartTime;
-      durationMinutes = Math.round(durationMs / (1000 * 60)); // Convertir a minutos
+      durationSeconds = Math.round(durationMs / 1000); // total en segundos
+      durationMinutes = Math.round(durationMs / (1000 * 60)); // minutos aproximados
       setTotalDurationMinutes(durationMinutes);
       
       console.log('[finishInterview] Duración total calculada:', {
         startTime: new Date(interviewStartTime).toLocaleTimeString(),
         endTime: new Date(endTime).toLocaleTimeString(),
         durationMs,
+        durationSeconds,
         durationMinutes
       });
     }
@@ -320,14 +326,15 @@ export const useInterview = () => {
         console.log('[finishInterview] Enviando datos a la API...');
         console.log('[finishInterview] userId:', user.id);
         console.log('[finishInterview] interviewId:', currentInterviewData.id);
-        console.log('[finishInterview] durationMinutes:', durationMinutes);
+        console.log('[finishInterview] durationMinutes (enviados como segundos):', durationSeconds);
         console.log('[finishInterview] audioFiles:', audioFiles?.length || 0);
         console.log('[finishInterview] videoFile:', !!videoFile);
 
         const formData = new FormData();
         formData.append('userId', user.id);
         formData.append('interviewId', currentInterviewData.id);
-        formData.append('durationMinutes', durationMinutes.toString());
+        // IMPORTANTE: aquí se envían SEGUNDOS aunque el campo se llame durationMinutes
+        formData.append('durationMinutes', durationSeconds.toString());
         
         // Agregar archivos de audio como array usando IDs de preguntas
         if (audioFiles && audioFiles.length > 0) {
