@@ -56,7 +56,7 @@ export class ParticipantService {
       const mapInterviewStatusToUI = (backendStatus?: string): Participant['status'] => {
         switch ((backendStatus || '').toUpperCase()) {
           case 'COMPLETADA':
-            return 'Entrevista Completa';
+            return 'Completado';
           case 'PENDIENTE':
             return 'En Proceso';
           case 'NO_ASIGNADA':

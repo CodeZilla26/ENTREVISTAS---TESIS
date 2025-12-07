@@ -26,7 +26,7 @@ export const filterParticipantsBySearch = (
  */
 export const filterParticipantsByStatus = (
   participants: Participant[], 
-  status: 'all' | 'Pendiente' | 'En Proceso' | 'Entrevista Completa'
+  status: 'all' | 'Pendiente' | 'En Proceso' | 'Completado'
 ): Participant[] => {
   if (status === 'all') return participants;
   
@@ -55,8 +55,8 @@ export const sortParticipants = (
       
     case 'status':
       return sorted.sort((a, b) => {
-        // Orden: Entrevista Completa, En Proceso, Pendiente
-        const statusOrder = { 'Entrevista Completa': 0, 'En Proceso': 1, 'Pendiente': 2 };
+        // Orden: Completado, En Proceso, Pendiente
+        const statusOrder = { 'Completado': 0, 'En Proceso': 1, 'Pendiente': 2 };
         const orderA = statusOrder[a.status] ?? 3;
         const orderB = statusOrder[b.status] ?? 3;
         return orderA - orderB;
@@ -74,7 +74,7 @@ export const filterAndSortParticipants = (
   participants: Participant[],
   filters: {
     searchTerm: string;
-    statusFilter: 'all' | 'Pendiente' | 'En Proceso' | 'Entrevista Completa';
+    statusFilter: 'all' | 'Pendiente' | 'En Proceso' | 'Completado';
     sortBy: 'name' | 'date' | 'status';
   }
 ): Participant[] => {
@@ -229,7 +229,7 @@ export const sortCompletedInterviews = (
  */
 export const getParticipantStats = (participants: Participant[]) => {
   const total = participants.length;
-  const completed = participants.filter(p => p.status === 'Entrevista Completa').length;
+  const completed = participants.filter(p => p.status === 'Completado').length;
   const inProcess = participants.filter(p => p.status === 'En Proceso').length;
   const pending = participants.filter(p => p.status === 'Pendiente').length;
   

@@ -21,7 +21,7 @@ export const useRecruiterData = ({ activeTab, onShowToast }: UseRecruiterDataPro
 
   // Estados para filtros del dashboard
   const [searchTerm, setSearchTerm] = useState('');
-  const [statusFilter, setStatusFilter] = useState<'all' | 'Pendiente' | 'En Proceso' | 'Entrevista Completa'>('all');
+  const [statusFilter, setStatusFilter] = useState<'all' | 'Pendiente' | 'En Proceso' | 'Completado'>('all');
   const [viewMode, setViewMode] = useState<'grid' | 'table'>('grid');
   const [sortBy, setSortBy] = useState<'name' | 'date' | 'status'>('name');
 

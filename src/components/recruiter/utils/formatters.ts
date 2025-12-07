@@ -201,9 +201,9 @@ export const formatStatus = (status: string | undefined): {
   dotColor: string;
 } => {
   switch (status) {
-    case 'Entrevista Completa':
+    case 'Completado':
       return {
-        text: 'Completada',
+        text: 'Completado',
         color: 'bg-green-500/20 text-green-300 border-green-500/30',
         dotColor: 'bg-green-400'
       };

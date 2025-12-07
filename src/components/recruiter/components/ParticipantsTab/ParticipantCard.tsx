@@ -15,7 +15,7 @@ export const ParticipantCard: React.FC<ParticipantCardProps> = ({
   console.log('[ParticipantCard] Participante:', participant.name, 'Estado:', participant.status);
   const getStatusColor = (status: string) => {
     switch (status) {
-      case 'Entrevista Completa':
+      case 'Completado':
         return 'bg-green-500/20 text-green-300 border border-green-500/30';
       case 'En Proceso':
         return 'bg-blue-500/20 text-blue-300 border border-blue-500/30';
@@ -26,7 +26,7 @@ export const ParticipantCard: React.FC<ParticipantCardProps> = ({
 
   const getStatusDotColor = (status: string) => {
     switch (status) {
-      case 'Entrevista Completa':
+      case 'Completado':
         return 'bg-green-400';
       case 'En Proceso':
         return 'bg-blue-400';
@@ -105,7 +105,7 @@ export const ParticipantCard: React.FC<ParticipantCardProps> = ({
           </button>
         ) : (
           <div className="flex-1 bg-slate-700/50 text-slate-400 font-medium py-3 px-4 rounded-xl text-center text-sm border border-slate-600/30">
-            {participant.status === 'Entrevista Completa' ? 'Completado' : 'Asignado'}
+            {participant.status === 'Completado' ? 'Completado' : 'Asignado'}
           </div>
         )}
       </div>
