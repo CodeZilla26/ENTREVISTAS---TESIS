@@ -10,7 +10,7 @@ export interface UseParticipantsProps {
   assignedInterviews: AssignedInterview[];
   setAssignedInterviews: React.Dispatch<React.SetStateAction<AssignedInterview[]>>;
   searchTerm: string;
-  statusFilter: 'all' | 'Pendiente' | 'En Proceso' | 'Entrevista Completa';
+  statusFilter: 'all' | 'Pendiente' | 'En Proceso' | 'Completado';
   sortBy: 'name' | 'date' | 'status';
   onShowToast: (message: string, type: 'success' | 'error' | 'info') => void;
 }

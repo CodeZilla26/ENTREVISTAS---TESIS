@@ -155,7 +155,7 @@ export class StorageService {
   static saveRecruiterSettings(settings: {
     viewMode?: 'grid' | 'table';
     sortBy?: 'name' | 'date' | 'status';
-    statusFilter?: 'all' | 'Pendiente' | 'En Proceso' | 'Entrevista Completa';
+    statusFilter?: 'all' | 'Pendiente' | 'En Proceso' | 'Completado';
     lastActiveTab?: string;
   }): void {
     try {
@@ -175,7 +175,7 @@ export class StorageService {
   static loadRecruiterSettings(): {
     viewMode: 'grid' | 'table';
     sortBy: 'name' | 'date' | 'status';
-    statusFilter: 'all' | 'Pendiente' | 'En Proceso' | 'Entrevista Completa';
+    statusFilter: 'all' | 'Pendiente' | 'En Proceso' | 'Completado';
     lastActiveTab: string;
   } {
     try {
