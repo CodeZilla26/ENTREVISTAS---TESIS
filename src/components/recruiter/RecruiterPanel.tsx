@@ -532,11 +532,14 @@ export const RecruiterPanel = ({ activeTab, onShowToast }: RecruiterPanelProps) 
                   <div className="bg-slate-800/70 rounded-lg p-3">
                     <p className="text-slate-400">Fecha</p>
                     <p className="text-xs font-medium text-slate-100">
-                      {new Date(selectedInterview.date).toLocaleDateString('es-ES', {
-                        day: 'numeric',
-                        month: 'long',
-                        year: 'numeric',
-                      })}
+                      {(() => {
+                        const dateStr = selectedInterview.date;
+                        if (!dateStr) return 'Sin fecha';
+                        const parts = dateStr.split('-');
+                        if (parts.length !== 3) return dateStr;
+                        const [year, month, day] = parts;
+                        return `${day}/${month}/${year}`;
+                      })()}
                     </p>
                   </div>
                 </div>

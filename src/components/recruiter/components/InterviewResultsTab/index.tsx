@@ -33,6 +33,16 @@ const InterviewResultsTab: React.FC<InterviewResultsTabProps> = ({
     return `${mins}:${secs < 10 ? '0' : ''}${secs}`;
   };
 
+  // Formatear fecha pura (YYYY-MM-DD) sin zonas horarias
+  const formatPureDate = (dateStr: string | undefined): string => {
+    if (!dateStr) return 'Sin fecha';
+    const parts = dateStr.split('-');
+    if (parts.length !== 3) return dateStr;
+    const [year, month, day] = parts;
+    // Formato corto DD/MM/YYYY para evitar problemas de timezone
+    return `${day}/${month}/${year}`;
+  };
+
   // Calcular ranking por tipo de entrevista (título)
   const interviewsByTitle = completedInterviews.reduce<Record<string, CompletedInterview[]>>((acc, interview) => {
     const key = interview.interviewTitle || 'Sin título';
@@ -143,7 +153,7 @@ const InterviewResultsTab: React.FC<InterviewResultsTabProps> = ({
                                   {interview.userName}
                                 </p>
                                 <p className="text-[10px] text-slate-400 truncate">
-                                  {new Date(interview.date).toLocaleDateString('es-ES')}
+                                  {formatPureDate(interview.date)}
                                 </p>
                               </div>
                             </div>
@@ -287,11 +297,7 @@ const InterviewResultsTab: React.FC<InterviewResultsTabProps> = ({
                   </div>
                 </td>
                 <td className="px-4 py-3 align-top text-sm text-slate-300">
-                  {new Date(interview.date).toLocaleDateString('es-ES', {
-                    day: 'numeric',
-                    month: 'long',
-                    year: 'numeric',
-                  })}
+                  {formatPureDate(interview.date)}
                 </td>
                 <td className="px-4 py-3 align-top">
                   <span className={`px-2 py-0.5 inline-flex text-xs leading-5 font-semibold rounded-full ${getScoreColor(interview.score)}`}>
